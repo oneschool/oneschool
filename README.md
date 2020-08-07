@@ -1,6 +1,10 @@
 # oneschool
 
-> Recommended IDE: IntelliJ with Cloud Code and Google SDK Setup. And VSCode for Frontend.
+> Always pull before you push
+
+### The recommended IDE: 
+- Backend: IntelliJ with Cloud Code and Google SDK Setup.
+- Frontend: VSCode with ext: tailwind css intellisense, es6-string-html and live-server.
 
 To run a local server, execute this
 command:
@@ -11,17 +15,19 @@ or
 
 Directly run a `Google App Engine Standard Local Server` from IntelliJ
 
-## frontend
 
-#### Productivity
+### Frontend Setup
 
-- VSCode Extensions: tailwind css intellisense, es6-string-html and live-server.
-
-> Note Make sure to run `yarn build:css` in the webapp directory if you're going to be working with frontend.
+Make sure to run the following commands after installing yarn v1.22.4
+```
+yarn
+yarn build:css
+// you'd need to build:css anytime you make changes to tailwind.config.js or css/style.css
+````
 
 yarn - v1.22.4
 
-## branch etiquette
+### branch etiquette
 
 - master (mainline) - only after review from team members and Arijit
     - merged only from dev branch
