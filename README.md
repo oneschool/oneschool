@@ -1,6 +1,6 @@
 # oneschool
 
-> Recommended IDE: IntelliJ with Cloud Code and Google SDK Setup.
+> Recommended IDE: IntelliJ with Cloud Code and Google SDK Setup. And VSCode for Frontend.
 
 To run a local server, execute this
 command:
@@ -11,6 +11,11 @@ or
 
 Directly run a `Google App Engine Standard Local Server` from IntelliJ
 
+## frontend
+
+#### Productivity
+
+- VSCode Extensions: tailwind css intellisense, es6-string-html and live-server.
 
 > Note Make sure to run `yarn build:css` in the webapp directory if you're going to be working with frontend.
 
