@@ -5,7 +5,6 @@ import Error404 from './views/pages/Error404.js'
 import Login from './views/pages/Login.js'
 import Register from './views/pages/Register.js'
 
-import TheNavBar from './views/components/TheNavBar.js'
 import TheFooter from './views/components/TheFooter.js' 
 
 import Utils from './services/Utils.js'
@@ -23,15 +22,9 @@ const routes = {
 const router = async () => {
 
     // Lazy load view element:
-    const header = null || document.getElementById('header_container');
     const content = null || document.getElementById('page_container');
     const footer = null || document.getElementById('footer_container');
     
-    // Render the Header only on home page
-    header.innerHTML = await TheNavBar.render();
-    await TheNavBar.after_render();
-    
-
     // Render the footer
     footer.innerHTML = await TheFooter.render();
     await TheFooter.after_render();

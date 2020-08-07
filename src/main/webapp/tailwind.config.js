@@ -19,7 +19,4 @@ module.exports = {
     outline: ["focus"],
   },
   plugins: [],
-  corePlugins: {
-    outline: false,
-  }
 }
