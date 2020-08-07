@@ -25,8 +25,6 @@ yarn build:css
 // you'd need to build:css anytime you make changes to tailwind.config.js or css/style.css
 ````
 
-yarn - v1.22.4
-
 ### branch etiquette
 
 - master (mainline) - only after review from team members and Arijit

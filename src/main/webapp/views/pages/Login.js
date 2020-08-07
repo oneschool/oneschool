@@ -15,7 +15,7 @@ const Login = {
                         <label class="block text-darkgrey text-sm mb-2" for="email">
                         Email
                         </label>
-                        <input class="shadow appearance-none rounded w-full py-2 px-3 text-darkgrey leading-tight focus:outline-none focus:shadow-outline" id="email" type="text" placeholder="johndoe@gmail.com">
+                        <input class="shadow appearance-none rounded w-full py-2 px-3 text-darkgrey leading-tight focus:outline-none focus:shadow-outline" id="email" autocomplete="username" type="text" placeholder="johndoe@gmail.com">
                     </div>
                     <div class="mb-6">
                         <label class="flex justify-between text-darkgrey text-sm mb-2" for="password">
@@ -24,7 +24,7 @@ const Login = {
                         Forgot Password?
                         </a>
                         </label>
-                        <input class="shadow appearance-none rounded w-full py-2 px-3 text-darkgrey mb-3 leading-tight focus:outline-none focus:shadow-outline" id="password" type="password" placeholder="*******">
+                        <input class="shadow appearance-none rounded w-full py-2 px-3 text-darkgrey mb-3 leading-tight focus:outline-none focus:shadow-outline" id="password" autocomplete="current-password" type="password" placeholder="*******">
                     </div>
                     <div class="flex items-center justify-between">
                         <button class="w-full bg-blue hover:bg-blue text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="button">
@@ -43,7 +43,11 @@ const Login = {
         `
         return view
     }, 
-    after_render: async () => {}
+    // All the code related to DOM interactions and controls go in here.
+    // This is a separate call as these can be registered only after the DOM has been painted
+    after_render: async () => {
+        
+    }
 }
 
 export default Login;
