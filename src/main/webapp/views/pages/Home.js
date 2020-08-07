@@ -21,7 +21,18 @@ const Home = {
         `
         return view
     },
-    after_render: async () => {}
+    after_render: async () => {
+        const signOutBtn = document.querySelector("#sign-out-btn");
+
+        // signout user
+        signOutBtn.addEventListener("click", (e) => {
+            e.preventDefault();
+            auth.signOut().then(() => {
+                console.debug("user signed out")
+            })
+        })
+
+    }
 }
 
 export default Home;

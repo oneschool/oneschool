@@ -123,7 +123,8 @@ const Register = {
             e.preventDefault();
             const data = validateForm();
             if (data.valid) {
-                // create account
+                // registerUser
+                registerUser(data);
             } else {
                 console.debug("you should not have reached here: invalid data..")
             }
@@ -146,7 +147,8 @@ const Register = {
             valid = valid && (name.length > 0)
 
             // password validation
-            valid = valid && (password.length > 0 && password === confirmPassword)
+            // password length 6 (firebase thingy)
+            valid = valid && (password.length > 5 && password === confirmPassword)
             
             // role validation
             valid = valid && (role === "Student" || role === "Educator")
@@ -163,6 +165,21 @@ const Register = {
             };
         }
         
+        const registerUser = ({email, name, password, role}) => {
+            // firebase is only used for auth and nothing else
+            auth.createUserWithEmailAndPassword(email, password).then(cred => {
+                console.debug(cred);
+                // check back cred and update details on backend accordingly
+                // emailVerified?
+                // role?
+                // name?
+                // photoUrl?
+                // isNewUser?
+            }).catch((err) => {
+                console.debug("Sign Up Error", err);
+            })
+        }
+
         const enableCreateAccountBtn = () => {
             createAccountBtn.removeAttribute("disabled");
             createAccountBtn.classList.remove("disabled");
