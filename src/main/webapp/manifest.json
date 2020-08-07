@@ -1,0 +1,23 @@
+{
+  "name": "OneSchool: One solution to online schooling",
+  "short_name": "oneschool",
+  "description": "Google IN SPS Project 2020 - Team 76",
+  "icons": [{
+    "src": "./appicons/favicon-16x16.png",
+    "sizes": "16x16",
+    "type": "image/png"
+  }, {
+    "src": "./appicons/apple-touch-icon.png",
+    "sizes": "180x180",
+    "type": "image/png"
+  }, {
+    "src": "./appicons/favicon-32x32.png",
+    "sizes": "32x32",
+    "type": "image/png"
+  }],
+  "start_url": "./index.html",
+  "display": "standalone",
+  "orientation" : "any",
+  "background_color": "#FFFFFF",
+  "theme_color": "#6C63FF"
+}
