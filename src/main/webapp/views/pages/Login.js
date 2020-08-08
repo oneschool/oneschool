@@ -1,3 +1,5 @@
+import Utils from "../../utils/Utils.js";
+
 const Login = {
     render : async () => {
         const view =  /*html*/`
@@ -104,6 +106,7 @@ const Login = {
 
                 
                 // then redirect user to student/educator dashboard
+                Utils.navigateToHash("");
             }).catch((err) => {
                 console.debug("Sign Up Error", err);
             })

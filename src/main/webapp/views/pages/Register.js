@@ -1,3 +1,5 @@
+import Utils from "../../utils/Utils";
+
 const Register = {
     render : async () => {
         const view =  /*html*/`
@@ -169,12 +171,17 @@ const Register = {
             // firebase is only used for auth and nothing else
             auth.createUserWithEmailAndPassword(email, password).then(cred => {
                 console.debug(cred);
-                // check back cred and update details on backend accordingly
+                // TODO: check back cred and update details on backend accordingly
+                // user.uid
                 // emailVerified?
                 // role?
                 // name?
                 // photoUrl?
                 // isNewUser?
+
+                // show some confirmation
+
+                Utils.navigateToHash("");
             }).catch((err) => {
                 console.debug("Sign Up Error", err);
             })

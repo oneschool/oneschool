@@ -7,10 +7,11 @@ import Register from './views/pages/Register.js'
 
 import TheFooter from './views/components/TheFooter.js' 
 
-import Utils from './services/Utils.js'
+import Utils from './utils/Utils.js'
 
 
 // List of supported routes. Any url other than these routes will throw a 404 error
+// resource/identifier/verb
 const routes = {
     '/'             : Home
     , '/login'      : Login
@@ -20,7 +21,6 @@ const routes = {
 
 // The router code. Takes a URL, checks against the list of supported routes and then renders the corresponding content page.
 const router = async () => {
-
     // Lazy load view element:
     const content = null || document.getElementById('page_container');
     const footer = null || document.getElementById('footer_container');

@@ -23,6 +23,12 @@ const Utils = {
     // --------------------------------
     , sleep: (ms) => {
         return new Promise(resolve => setTimeout(resolve, ms));
+    },
+
+    // navigates the window to a particular hash uri
+    // e.g. navigateToHash("login") -> sets location.hash to <domain>/#/login
+    navigateToHash: (uri) => {
+        location.hash = "#/" + uri
     }
 }
 

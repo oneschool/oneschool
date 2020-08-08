@@ -24,10 +24,13 @@ const TheNavBar = {
         return view
     },
     after_render: async () => {
-        const signOutBtn = document.querySelector("#sign-out-btn");
-        const signInBtn = document.querySelector("#sign-in-btn")
+        const signOutBtn = null || document.querySelector("#sign-out-btn");
+        const signInBtn = null || document.querySelector("#sign-in-btn")
 
-        // TODO: check auth status and show button accordingly
+        // listener for auth status
+        auth.onAuthStateChanged((user) => {
+            user ? showSignOutBtn() : showSignInBtn();
+        })
 
         // only one button will be visible at a time
         // hide sign out
