@@ -1,4 +1,4 @@
-import Utils from "../../utils/Utils";
+import Utils from "../../utils/Utils.js";
 
 const Register = {
     render : async () => {
@@ -169,8 +169,7 @@ const Register = {
         
         const registerUser = ({email, name, password, role}) => {
             // firebase is only used for auth and nothing else
-            auth.createUserWithEmailAndPassword(email, password).then(cred => {
-                console.debug(cred);
+            auth.createUserWithEmailAndPassword(email, password).then(({user}) => {
                 // TODO: check back cred and update details on backend accordingly
                 // user.uid
                 // emailVerified?
@@ -179,9 +178,18 @@ const Register = {
                 // photoUrl?
                 // isNewUser?
 
-                // show some confirmation
-
+                // show some confirmation and say that their email need to be verified
                 Utils.navigateToHash("");
+
+                // lazy async task to send verification mail
+                if (!user.emailVerfied) {
+                    console.debug("sending verification mail");
+                    user.sendEmailVerification().then(() => {
+                        console.debug("email verification link sent");
+                    }).catch((err) => {
+                        console.debug("error: email verification mail was not sent", err)
+                    })
+                }
             }).catch((err) => {
                 console.debug("Sign Up Error", err);
             })
