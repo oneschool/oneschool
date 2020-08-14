@@ -165,9 +165,7 @@ public class Educator implements IModel{
                 .degree((String) entity.getProperty(Keys.DEGREE))
                 .department((String) entity.getProperty(Keys.DEPARTMENT))
                 .joiningYear((int) entity.getProperty(Keys.JOINING_YEAR))
-                .gradYear((int) entity.getProperty(Keys.GRAD_YEAR))
                 .classroomList((List<Long>) entity.getProperty(Keys.CLASSROOMS))
-                .CGPA((double) entity.getProperty(Keys.CGPA))
                 .updated((long) entity.getProperty(Keys.UPDATED))
                 .created((long) entity.getProperty(Keys.CREATED))
                 .build();
