@@ -1,10 +1,11 @@
-package com.google.sps.api;
+package com.google.sps.api.v1;
 
 import com.google.gson.Gson;
 import com.google.sps.dao.ClassroomDao;
 import com.google.sps.dao.IClassroomDao;
 import com.google.sps.models.Classroom;
 import com.google.sps.utils.Validation.ServletUtils;
+import com.google.sps.utils.Validation.ValidationErrors;
 import com.google.sps.utils.Validation.ValidationResponse;
 
 import javax.servlet.ServletException;
@@ -41,7 +42,11 @@ public class ClassroomServlet extends HttpServlet {
         ValidationResponse validationResponse = classroomDao.createClassroom(classroom);
 
         resp.setContentType(ServletUtils.CONTENT_TYPE_JSON);
-        resp.setStatus(HttpServletResponse.SC_ACCEPTED);
+        if (validationResponse.getStatus() == ValidationErrors.STATUS_OK) {
+            resp.setStatus(HttpServletResponse.SC_CREATED);
+        } else {
+            resp.setStatus(HttpServletResponse.SC_OK);
+        }
         resp.getWriter().println(gson.toJson(validationResponse));
     }
 }

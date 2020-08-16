@@ -24,7 +24,7 @@ public class ClassroomDao implements IClassroomDao {
             return validationResponse;
         }
 
-        Entity classroomEntity = classroom.createEntity();
+        Entity classroomEntity = classroom.getAsEntity();
         datastoreService.put(classroomEntity);
 
         return validationResponse;
