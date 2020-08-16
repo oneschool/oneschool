@@ -130,7 +130,7 @@ public class Educator implements IModel{
     }
 
     @Override
-    public Entity createEntity() {
+    public Entity getAsEntity() {
         Entity educatorEntity = new Entity(Keys.KIND);
 
         educatorEntity.setProperty(Keys.FIRST_NAME, this.firstName);

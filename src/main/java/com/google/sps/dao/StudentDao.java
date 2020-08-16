@@ -21,7 +21,7 @@ public class StudentDao implements IStudentDao{
             return validationResponse;
         }
 
-        Entity studentEntity = student.createEntity();
+        Entity studentEntity = student.getAsEntity();
         datastoreService.put(studentEntity);
 
         return validationResponse;

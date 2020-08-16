@@ -5,6 +5,7 @@ import com.google.sps.dao.IStudentDao;
 import com.google.sps.dao.StudentDao;
 import com.google.sps.models.Student;
 import com.google.sps.utils.Validation.ServletUtils;
+import com.google.sps.utils.Validation.ValidationErrors;
 import com.google.sps.utils.Validation.ValidationResponse;
 
 import javax.servlet.ServletException;
@@ -41,7 +42,11 @@ public class StudentServlet extends HttpServlet {
         ValidationResponse validationResponse = studentDao.createStudent(student);
 
         resp.setContentType(ServletUtils.CONTENT_TYPE_JSON);
-        resp.setStatus(HttpServletResponse.SC_ACCEPTED);
+        if (validationResponse.getStatus() == ValidationErrors.STATUS_OK) {
+            resp.setStatus(HttpServletResponse.SC_CREATED);
+        } else {
+            resp.setStatus(HttpServletResponse.SC_OK);
+        }
         resp.getWriter().println(gson.toJson(validationResponse));
     }
 }

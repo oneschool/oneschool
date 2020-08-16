@@ -22,7 +22,7 @@ public class EducatorDao implements IEducatorDao{
             return validationResponse;
         }
 
-        Entity studentEntity = educator.createEntity();
+        Entity studentEntity = educator.getAsEntity();
         datastoreService.put(studentEntity);
 
         return validationResponse;

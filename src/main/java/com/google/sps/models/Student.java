@@ -140,7 +140,7 @@ public class Student implements IModel{
     }
 
     @Override
-    public Entity createEntity() {
+    public Entity getAsEntity() {
         Entity studentEntity = new Entity(Keys.KIND);
 
         studentEntity.setProperty(Keys.FIRST_NAME, this.firstName);
