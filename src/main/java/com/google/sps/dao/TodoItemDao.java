@@ -30,7 +30,7 @@ public class TodoItemDao implements ITodoItemDao{
             return validationResponse;
         }
 
-        Entity todoEntity = todoItem.createEntity();
+        Entity todoEntity = todoItem.getAsEntity();
         datastoreService.put(todoEntity);
 
         return validationResponse;

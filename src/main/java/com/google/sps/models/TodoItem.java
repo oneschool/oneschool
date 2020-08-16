@@ -65,7 +65,7 @@ public class TodoItem implements IModel{
     }
 
     @Override
-    public Entity createEntity() {
+    public Entity getAsEntity() {
         Entity todoEntity = new Entity(TodoItem.Keys.KIND);
 
         todoEntity.setProperty(TodoItem.Keys.NAME, this.name);

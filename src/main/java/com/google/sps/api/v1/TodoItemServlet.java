@@ -5,6 +5,7 @@ import com.google.sps.dao.ITodoItemDao;
 import com.google.sps.dao.TodoItemDao;
 import com.google.sps.models.TodoItem;
 import com.google.sps.utils.Validation.ServletUtils;
+import com.google.sps.utils.Validation.ValidationErrors;
 import com.google.sps.utils.Validation.ValidationResponse;
 
 import javax.servlet.ServletException;
@@ -58,7 +59,11 @@ public class TodoItemServlet extends HttpServlet {
         ValidationResponse validationResponse = todoItemDao.createTodoItem(todoItem);
 
         resp.setContentType(ServletUtils.CONTENT_TYPE_JSON);
-        resp.setStatus(HttpServletResponse.SC_ACCEPTED);
+        if (validationResponse.getStatus() == ValidationErrors.STATUS_OK) {
+            resp.setStatus(HttpServletResponse.SC_CREATED);
+        } else {
+            resp.setStatus(HttpServletResponse.SC_OK);
+        }
         resp.getWriter().println(gson.toJson(validationResponse));
     }
 }
