@@ -54,7 +54,7 @@ public class Classroom implements IModel {
     }
 
     @Override
-    public Entity createEntity() {
+    public Entity getAsEntity() {
         Entity classroomEntity = new Entity(Keys.KIND);
 
         classroomEntity.setProperty(Keys.NAME, this.name);

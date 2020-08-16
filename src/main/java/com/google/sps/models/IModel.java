@@ -7,7 +7,7 @@ import javax.servlet.http.HttpServletRequest;
 
 public interface IModel {
     ValidationResponse validate();
-    Entity createEntity();
+    Entity getAsEntity();
     IModel createFromEntity(Entity entity);
     IModel createFromRequest(HttpServletRequest request);
 }
