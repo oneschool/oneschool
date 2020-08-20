@@ -4100,6 +4100,14 @@ video {
   opacity: 1;
 }
 
+.outline-none {
+  outline: 0;
+}
+
+.focus\:outline-none:focus {
+  outline: 0;
+}
+
 .overflow-auto {
   overflow: auto;
 }
@@ -8691,6 +8699,11 @@ video {
 .animate-bounce {
   -webkit-animation: bounce 1s infinite;
           animation: bounce 1s infinite;
+}
+
+.disabled {
+  opacity: 0.5;
+  cursor: not-allowed
 }
 
 @media (min-width: 640px) {
