@@ -11,3 +11,4 @@ buildNumber.properties
 .mvn/wrapper/maven-wrapper.jar
 .idea/
 **/summer20-sps-76-firebase-adminsdk.json
+**/*.iml
