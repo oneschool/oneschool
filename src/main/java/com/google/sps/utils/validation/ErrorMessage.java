@@ -1,4 +1,4 @@
-package com.google.sps.utils.Validation;
+package com.google.sps.utils.validation;
 
 import lombok.Getter;
 

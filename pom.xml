@@ -39,6 +39,16 @@
 		<version>1.18.12</version>
 		<scope>provided</scope>
 	</dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-simple</artifactId>
+      <version>1.7.21</version>
+    </dependency>
+    <dependency>
+      <groupId>com.google.firebase</groupId>
+      <artifactId>firebase-admin</artifactId>
+      <version>7.0.0</version>
+    </dependency>
   </dependencies>
 
   <build>
@@ -52,6 +62,7 @@
         <configuration>
           <deploy.projectId>summer20-sps-76</deploy.projectId>
           <deploy.version>1</deploy.version>
+          <automaticRestart>true</automaticRestart>
         </configuration>
       </plugin>
     </plugins>

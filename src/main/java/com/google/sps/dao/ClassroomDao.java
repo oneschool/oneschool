@@ -3,8 +3,8 @@ package com.google.sps.dao;
 import com.google.appengine.api.datastore.*;
 import com.google.sps.models.Classroom;
 import com.google.sps.models.IModel;
-import com.google.sps.utils.Validation.ValidationErrors;
-import com.google.sps.utils.Validation.ValidationResponse;
+import com.google.sps.utils.validation.ValidationErrors;
+import com.google.sps.utils.validation.ValidationResponse;
 
 import java.util.ArrayList;
 import java.util.List;

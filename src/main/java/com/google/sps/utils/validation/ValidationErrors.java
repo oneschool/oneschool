@@ -1,10 +1,11 @@
-package com.google.sps.utils.Validation;
+package com.google.sps.utils.validation;
 
 public class ValidationErrors {
     public static int STATUS_OK = 200;
     public static int STATUS_NOT_OK = 400;
     public static String MESSAGE_OK = "OK";
     public static String MESSAGE_NOT_OK = "Some error occurred";
+    public static String MESSAGE_FORBIDDEN = "Forbidden";
 
     public static String IS_EMPTY_OR_WHITE_SPACE = "%s field cannot be empty";
 
