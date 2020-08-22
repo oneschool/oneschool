@@ -4,9 +4,9 @@ import com.google.gson.Gson;
 import com.google.sps.dao.AssignmentDao;
 import com.google.sps.dao.IAssignmentDao;
 import com.google.sps.models.Assignment;
-import com.google.sps.utils.Validation.ServletUtils;
-import com.google.sps.utils.Validation.ValidationErrors;
-import com.google.sps.utils.Validation.ValidationResponse;
+import com.google.sps.utils.validation.ServletUtils;
+import com.google.sps.utils.validation.ValidationErrors;
+import com.google.sps.utils.validation.ValidationResponse;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;

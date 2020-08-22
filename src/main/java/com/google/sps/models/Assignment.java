@@ -1,15 +1,16 @@
 package com.google.sps.models;
 
 import com.google.appengine.api.datastore.Entity;
-import com.google.sps.utils.Validation.ServletUtils;
-import com.google.sps.utils.Validation.ValidationErrors;
-import com.google.sps.utils.Validation.ValidationResponse;
-import com.google.sps.utils.Validation.ValidationUtils;
+import com.google.sps.utils.validation.ServletUtils;
+import com.google.sps.utils.validation.ValidationErrors;
+import com.google.sps.utils.validation.ValidationResponse;
+import com.google.sps.utils.validation.ValidationUtils;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
 
 @Builder
 @Setter
@@ -140,6 +141,11 @@ public class Assignment implements IModel {
                         Boolean.parseBoolean(ServletUtils.getParameter(request, Keys.SUBMITTED, "false"))
                 )
                 .build();
+    }
+
+    @Override
+    public IModel createFromJsonRequest(HttpServletRequest request) throws IOException {
+        return null;
     }
 
     public static class Keys {
