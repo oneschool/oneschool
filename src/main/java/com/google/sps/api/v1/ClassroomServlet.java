@@ -1,12 +1,13 @@
 package com.google.sps.api.v1;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.sps.dao.ClassroomDao;
 import com.google.sps.dao.IClassroomDao;
 import com.google.sps.models.Classroom;
-import com.google.sps.utils.Validation.ServletUtils;
-import com.google.sps.utils.Validation.ValidationErrors;
-import com.google.sps.utils.Validation.ValidationResponse;
+import com.google.sps.utils.validation.ServletUtils;
+import com.google.sps.utils.validation.ValidationErrors;
+import com.google.sps.utils.validation.ValidationResponse;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -22,7 +23,7 @@ public class ClassroomServlet extends HttpServlet {
     private IClassroomDao classroomDao;
 
     public ClassroomServlet() {
-        gson = new Gson();
+        gson = new GsonBuilder().setPrettyPrinting().create();
         classroomDao = new ClassroomDao();
     }
 

@@ -1,15 +1,18 @@
 package com.google.sps.models;
 
 import com.google.appengine.api.datastore.Entity;
-import com.google.sps.utils.Validation.ServletUtils;
-import com.google.sps.utils.Validation.ValidationErrors;
-import com.google.sps.utils.Validation.ValidationResponse;
-import com.google.sps.utils.Validation.ValidationUtils;
+import com.google.gson.Gson;
+import com.google.sps.utils.validation.ServletUtils;
+import com.google.sps.utils.validation.ValidationErrors;
+import com.google.sps.utils.validation.ValidationResponse;
+import com.google.sps.utils.validation.ValidationUtils;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.BufferedReader;
+import java.io.IOException;
 
 @Builder
 @Setter
@@ -88,6 +91,14 @@ public class Classroom implements IModel {
                         Integer.parseInt(ServletUtils.getParameter(request, Keys.EDUCATOR_ID, "0"))
                 )
                 .build();
+    }
+
+    @Override
+    public IModel createFromJsonRequest(HttpServletRequest request) throws IOException {
+        Gson gson = new Gson();
+        BufferedReader bufferedReader = request.getReader();
+        Classroom classroom = gson.fromJson(bufferedReader, Classroom.class);
+        return classroom;
     }
 
     public static class Keys {

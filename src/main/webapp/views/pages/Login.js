@@ -96,8 +96,9 @@ const Login = {
             // firebase is only used for auth and nothing else
             auth.signInWithEmailAndPassword(email, password).then(cred => {
                 console.debug(cred);
+                cred.user.getIdToken().then((idToken) => console.debug(idToken))
                 console.debug("user signed in")
-                // TODO:
+                // TODO:    
                 // check back cred and update details on backend accordingly and fetch current details
                 // emailVerified?
                 // role?

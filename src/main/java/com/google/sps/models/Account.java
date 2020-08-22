@@ -1,15 +1,18 @@
 package com.google.sps.models;
 
 import com.google.appengine.api.datastore.Entity;
-import com.google.sps.constants.AccountRole;
-import com.google.sps.utils.Validation.ValidationErrors;
-import com.google.sps.utils.Validation.ValidationResponse;
+import com.google.gson.Gson;
+import com.google.sps.dao.AccountDao;
+import com.google.sps.utils.validation.ValidationErrors;
+import com.google.sps.utils.validation.ValidationResponse;
 
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.BufferedReader;
+import java.io.IOException;
 
 @Builder
 @Setter
@@ -21,7 +24,7 @@ public class Account implements IModel {
     private String email;
     private String imageUrl;
     private String institute;
-    private AccountRole role;
+    private String role; // later change to enum educator, student
     private boolean isVerified;
 
     @Builder.Default
@@ -58,7 +61,7 @@ public class Account implements IModel {
     }
 
     @Override
-    public IModel createFromEntity(Entity entity) {
+    public Account createFromEntity(Entity entity) {
         return Account.builder()
                 .id(entity.getKey().getId())
                 .firebaseUid((String) entity.getProperty(Keys.FIREBASE_UID))
@@ -66,25 +69,34 @@ public class Account implements IModel {
                 .email((String) entity.getProperty(Keys.EMAIL))
                 .imageUrl((String) entity.getProperty(Keys.IMAGE_URL))
                 .institute((String) entity.getProperty(Keys.INSTITUTE))
-                .role(AccountRole.valueOfLabel((String) entity.getProperty(Keys.ROLE)))
+                .role((String) entity.getProperty(Keys.ROLE))
                 .isVerified((boolean) entity.getProperty(Keys.IS_VERIFIED))
                 .build();
     }
 
     @Override
+    @Deprecated
     public IModel createFromRequest(HttpServletRequest request) {
         return null;
+    }
+
+    @Override
+    public Account createFromJsonRequest(HttpServletRequest request) throws IOException {
+        Gson gson = new Gson();
+        BufferedReader bufferedReader = request.getReader();
+        Account account = gson.fromJson(bufferedReader, Account.class);
+        return account;
     }
 
     public static class Keys {
         public static String KIND = "account";
         public static String NAME = "name";
         public static String EMAIL = "email";
-        public static String FIREBASE_UID = "firebase_uid";
-        public static String IMAGE_URL = "image_url";
+        public static String FIREBASE_UID = "firebaseUid";
+        public static String IMAGE_URL = "imageUrl";
         public static String INSTITUTE = "institute";
         public static String ROLE = "role";
-        public static String IS_VERIFIED = "is_verified";
+        public static String IS_VERIFIED = "isVerified";
         public static String CREATED = "created";
         public static String UPDATED = "updated";
     }
