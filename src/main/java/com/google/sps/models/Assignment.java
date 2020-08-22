@@ -1,6 +1,7 @@
 package com.google.sps.models;
 
 import com.google.appengine.api.datastore.Entity;
+import com.google.gson.Gson;
 import com.google.sps.utils.validation.ServletUtils;
 import com.google.sps.utils.validation.ValidationErrors;
 import com.google.sps.utils.validation.ValidationResponse;
@@ -10,6 +11,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.BufferedReader;
 import java.io.IOException;
 
 @Builder
@@ -20,11 +22,12 @@ public class Assignment implements IModel {
     private long classroomId;
     private String name;
     private String description;
-    private long studentId;
-    private int total_marks;
-    private int scored_marks;
+    private String studentId;
+    private String educatorId;
+    private long total_marks;
+    private long scored_marks;
     private boolean submitted;
-    private int solution;
+    private String solution;
     private long deadline;
     @Builder.Default
     private long created = System.currentTimeMillis();
@@ -55,7 +58,7 @@ public class Assignment implements IModel {
             );
         }
 
-        if (ValidationUtils.isZero(Keys.STUDENT_ID)) {
+        if (ValidationUtils.isEmptyOrWhiteSpace(studentId)) {
             validationResponseBuilder.status(ValidationErrors.STATUS_NOT_OK);
             validationResponseBuilder.message(ValidationErrors.MESSAGE_NOT_OK);
 
@@ -72,6 +75,17 @@ public class Assignment implements IModel {
                     ValidationErrors.isEmptyOrWhiteSpace(Keys.CLASSROOM_ID)
             );
         }
+
+//        if (ValidationUtils.isEmptyOrWhiteSpace(educatorId)) {
+//            validationResponseBuilder.status(ValidationErrors.STATUS_NOT_OK);
+//            validationResponseBuilder.message(ValidationErrors.MESSAGE_NOT_OK);
+//
+//            validationResponseBuilder.error(
+//                    ValidationErrors.isEmptyOrWhiteSpace(Keys.EDUCATOR_ID)
+//            );
+//        }
+
+        // ToDo: to validate student and educator separately
 
         return validationResponseBuilder.build();
     }
@@ -92,6 +106,7 @@ public class Assignment implements IModel {
         assignmentEntity.setProperty(Keys.SCORED_MARKS, this.scored_marks);
         assignmentEntity.setProperty(Keys.DEADLINE, this.deadline);
         assignmentEntity.setProperty(Keys.TOTAL_MARKS, this.total_marks);
+        assignmentEntity.setProperty(Keys.EDUCATOR_ID, this.educatorId);
 
         return assignmentEntity;
     }
@@ -102,15 +117,16 @@ public class Assignment implements IModel {
                 .id(entity.getKey().getId())
                 .name((String) entity.getProperty(Keys.NAME))
                 .description((String) entity.getProperty(Keys.DESCRIPTION))
-                .studentId((long) entity.getProperty(Keys.STUDENT_ID))
+                .studentId((String) entity.getProperty(Keys.STUDENT_ID))
                 .updated((long) entity.getProperty(Keys.UPDATED))
                 .created((long) entity.getProperty(Keys.CREATED))
                 .classroomId((long) entity.getProperty(Keys.CLASSROOM_ID))
-                .scored_marks((int) entity.getProperty(Keys.SCORED_MARKS))
-                .total_marks((int) entity.getProperty(Keys.TOTAL_MARKS))
+                .scored_marks((long) entity.getProperty(Keys.SCORED_MARKS))
+                .total_marks((long) entity.getProperty(Keys.TOTAL_MARKS))
                 .deadline((long) entity.getProperty(Keys.DEADLINE))
-                .solution((int) entity.getProperty(Keys.SOLUTION))
+                .solution((String) entity.getProperty(Keys.SOLUTION))
                 .submitted((boolean) entity.getProperty(Keys.SUBMITTED))
+                .educatorId((String) entity.getProperty(Keys.EDUCATOR_ID))
                 .build();
     }
 
@@ -119,9 +135,8 @@ public class Assignment implements IModel {
         return Assignment.builder()
                 .name(ServletUtils.getParameter(request, Keys.NAME, ""))
                 .description(ServletUtils.getParameter(request, Keys.DESCRIPTION, ""))
-                .studentId(
-                        Integer.parseInt(ServletUtils.getParameter(request, Keys.STUDENT_ID, "0"))
-                )
+                .studentId(ServletUtils.getParameter(request, Keys.STUDENT_ID, ""))
+                .educatorId(ServletUtils.getParameter(request, Keys.EDUCATOR_ID, "0"))
                 .classroomId(
                         Integer.parseInt(ServletUtils.getParameter(request, Keys.CLASSROOM_ID, "0"))
                 )
@@ -134,9 +149,7 @@ public class Assignment implements IModel {
                 .deadline(
                         Integer.parseInt(ServletUtils.getParameter(request, Keys.DEADLINE, "0"))
                 )
-                .solution(
-                        Integer.parseInt(ServletUtils.getParameter(request, Keys.SOLUTION, "0"))
-                )
+                .solution(ServletUtils.getParameter(request, Keys.SOLUTION, ""))
                 .submitted(
                         Boolean.parseBoolean(ServletUtils.getParameter(request, Keys.SUBMITTED, "false"))
                 )
@@ -144,8 +157,10 @@ public class Assignment implements IModel {
     }
 
     @Override
-    public IModel createFromJsonRequest(HttpServletRequest request) throws IOException {
-        return null;
+    public Assignment createFromJsonRequest(HttpServletRequest request) throws IOException {
+        Gson gson = new Gson();
+        BufferedReader bufferedReader = request.getReader();
+        return gson.fromJson(bufferedReader, Assignment.class);
     }
 
     public static class Keys {
@@ -161,5 +176,6 @@ public class Assignment implements IModel {
         public static String DEADLINE =  "deadline";
         public static String CLASSROOM_ID = "classroomId";
         public static String TOTAL_MARKS = "total_marks";
+        public static String EDUCATOR_ID = "educatorId";
     }
 }

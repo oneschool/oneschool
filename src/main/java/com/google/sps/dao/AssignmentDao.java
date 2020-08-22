@@ -1,6 +1,7 @@
 package com.google.sps.dao;
 
 import com.google.appengine.api.datastore.*;
+import com.google.sps.models.Account;
 import com.google.sps.models.Assignment;
 import com.google.sps.models.IModel;
 import com.google.sps.utils.validation.ValidationErrors;
@@ -32,8 +33,9 @@ public class AssignmentDao implements  IAssignmentDao{
     }
 
     @Override
-    public List<Assignment> getAllAssignments() {
-        Query query = new Query(Assignment.Keys.KIND);
+    public List<Assignment> getAllAssignmentsStudent(String studentId) {
+        Query.Filter filter = new Query.FilterPredicate(Assignment.Keys.STUDENT_ID, Query.FilterOperator.EQUAL, studentId);
+        Query query = new Query(Assignment.Keys.KIND).setFilter(filter);
 
         PreparedQuery results = datastoreService.prepare(query);
 
@@ -42,6 +44,23 @@ public class AssignmentDao implements  IAssignmentDao{
         for(Entity entity: results.asIterable()) {
             assignments.add(
               Assignment.builder().build().createFromEntity(entity)
+            );
+        }
+        return assignments;
+    }
+
+    @Override
+    public List<Assignment> getAllAssignmentsEducator(String educatorId) {
+        Query.Filter filter = new Query.FilterPredicate(Assignment.Keys.EDUCATOR_ID, Query.FilterOperator.EQUAL, educatorId);
+        Query query = new Query(Assignment.Keys.EDUCATOR_ID).setFilter(filter);
+
+        PreparedQuery results = datastoreService.prepare(query);
+
+        List<Assignment> assignments = new ArrayList<>();
+
+        for(Entity entity: results.asIterable()) {
+            assignments.add(
+                    Assignment.builder().build().createFromEntity(entity)
             );
         }
         return assignments;
