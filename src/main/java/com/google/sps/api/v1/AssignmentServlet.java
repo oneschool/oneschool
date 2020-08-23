@@ -89,4 +89,44 @@ public class AssignmentServlet extends HttpServlet {
         resp.getWriter().println(gson.toJson(validationResponse));
     }
 
+    protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        String firebaseUid = req.getHeader("X-Firebase-Uid");
+        if (firebaseUid == null) {
+            resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            return;
+        }
+        Account account = accountDao.getAccount(firebaseUid);
+
+        if (account == null) {
+            resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
+            return;
+        }
+
+        Long assignmentId = Long.parseLong(req.getParameter("id"));
+        Assignment assignment = assignmentDao.getAssignmentById(assignmentId);
+
+        if(account.getRole().equals("student")) {
+            String solution = ServletUtils.getParameter(req, "solution", "");
+            assignment.setSolution(solution);
+            assignment.setSubmitted(true);
+            assignment.setUpdated(System.currentTimeMillis());
+        }
+        else {
+            long scoredMarks = Long.parseLong(req.getParameter("scored_marks"));
+            assignment.setScored_marks(scoredMarks);
+            assignment.setUpdated(System.currentTimeMillis());
+        }
+
+        ValidationResponse validationResponse = assignmentDao.createAssignment(assignment);
+
+        resp.setContentType(ServletUtils.CONTENT_TYPE_JSON);
+        if (validationResponse.getStatus() == ValidationErrors.STATUS_OK) {
+            resp.setStatus(HttpServletResponse.SC_CREATED);
+        } else {
+            resp.setStatus(HttpServletResponse.SC_OK);
+        }
+        resp.getWriter().println(gson.toJson(validationResponse));
+
+    }
+
 }

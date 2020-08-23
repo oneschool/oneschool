@@ -1,6 +1,9 @@
 package com.google.sps.dao;
 
 import com.google.appengine.api.datastore.*;
+import com.google.appengine.api.datastore.Query.Filter;
+import com.google.appengine.api.datastore.Query.FilterOperator;
+import com.google.appengine.api.datastore.Query.FilterPredicate;
 import com.google.sps.models.Account;
 import com.google.sps.models.Assignment;
 import com.google.sps.models.IModel;
@@ -10,7 +13,7 @@ import com.google.sps.utils.validation.ValidationResponse;
 import java.util.ArrayList;
 import java.util.List;
 
-public class AssignmentDao implements  IAssignmentDao{
+public class AssignmentDao implements IAssignmentDao {
 
     private DatastoreService datastoreService;
 
@@ -102,5 +105,16 @@ public class AssignmentDao implements  IAssignmentDao{
             }
         }
         return assignments;
+    }
+
+    @Override
+    public Assignment getAssignmentById(long assignmentId){
+        Filter idFilter = new FilterPredicate("id", FilterOperator.EQUAL, assignmentId);
+        Query query = new Query(Assignment.Keys.KIND).setFilter(idFilter);
+
+        PreparedQuery result = datastoreService.prepare(query);
+        Entity assignmentEntity = result.asSingleEntity();
+
+        return Assignment.builder().build().createFromEntity(assignmentEntity);
     }
 }

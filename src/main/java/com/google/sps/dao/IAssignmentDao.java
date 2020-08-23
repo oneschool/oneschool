@@ -8,6 +8,7 @@ import java.util.List;
 
 public interface IAssignmentDao {
     ValidationResponse createAssignment(IModel assignment);
+    Assignment getAssignmentById(long assignmentId);
     List<Assignment> getAllAssignmentsStudent(String studentId);
     List<Assignment> getAllAssignmentsEducator(String educatorId);
     List<Assignment> getAllPendingAssignments();
