@@ -4,18 +4,24 @@ import Home from './views/pages/Home.js'
 import Error404 from './views/pages/Error404.js'
 import Login from './views/pages/Login.js'
 import Register from './views/pages/Register.js'
+import Dashboard from './views/pages/Dashboard.js';
 
 import TheFooter from './views/components/TheFooter.js' 
 
 import Utils from './utils/Utils.js'
 
+import { setDomain } from './osapi/OsApi.js';
+
+const server = "/api/v1"
+setDomain(server)
 
 // List of supported routes. Any url other than these routes will throw a 404 error
 // resource/identifier/verb
 const routes = {
-    '/'             : Home
-    , '/login'      : Login
-    , '/register'   : Register
+    '/'              : Home
+    , '/login'       : Login
+    , '/register'    : Register
+    , '/app'         : Dashboard
     // , '/p/:id'      : PostShow
 };
 

@@ -57,8 +57,8 @@ public class AuthFilter implements Filter {
         HttpServletResponse response = (HttpServletResponse) servletResponse;
 
         // Uncomment the following line when doing local testing and add X-Firebase-Uid in the Headers
-        //        filterChain.doFilter(request, response);
-        //        return;
+//                filterChain.doFilter(request, response);
+//                return;
 
         String token = request.getHeader("X-Token");
         FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();

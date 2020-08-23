@@ -1,3 +1,5 @@
+// deprecated not using anymore
+
 const TheNavBar = {
     render: async () => {
         let view =  /*html*/`

@@ -2,13 +2,14 @@ package com.google.sps.models;
 
 import com.google.appengine.api.datastore.Entity;
 import com.google.gson.Gson;
-import com.google.sps.dao.AccountDao;
+import com.google.gson.GsonBuilder;
 import com.google.sps.utils.validation.ValidationErrors;
 import com.google.sps.utils.validation.ValidationResponse;
 
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.BufferedReader;
@@ -26,11 +27,8 @@ public class Account implements IModel {
     private String institute;
     private String role; // later change to enum educator, student
     private boolean isVerified;
-
-    @Builder.Default
-    private long created = System.currentTimeMillis();
-    @Builder.Default
-    private long updated = System.currentTimeMillis();
+    private long created;
+    private long updated;
 
     @Override
     public ValidationResponse validate() {
@@ -38,7 +36,11 @@ public class Account implements IModel {
         validationResponseBuilder.status(ValidationErrors.STATUS_OK);
         validationResponseBuilder.message(ValidationErrors.MESSAGE_OK);
 
+        this.setRole(this.getRole().toLowerCase());
+        this.setEmail(this.getEmail().toLowerCase());
+
         // TODO: all kinds of validators
+
 
         return validationResponseBuilder.build();
     }
@@ -46,18 +48,7 @@ public class Account implements IModel {
     @Override
     public Entity getAsEntity() {
         Entity accountEntity = new Entity(Keys.KIND);
-
-        accountEntity.setProperty(Keys.NAME, this.name);
-        accountEntity.setProperty(Keys.EMAIL, this.email);
-        accountEntity.setProperty(Keys.FIREBASE_UID, this.firebaseUid);
-        accountEntity.setProperty(Keys.IMAGE_URL, this.imageUrl);
-        accountEntity.setProperty(Keys.INSTITUTE, this.institute);
-        accountEntity.setProperty(Keys.ROLE, this.role);
-        accountEntity.setProperty(Keys.IS_VERIFIED, this.isVerified);
-        accountEntity.setProperty(Keys.CREATED, this.created);
-        accountEntity.setProperty(Keys.UPDATED, this.updated);
-
-        return accountEntity;
+        return setEntityAttributes(accountEntity, false);
     }
 
     @Override
@@ -71,6 +62,8 @@ public class Account implements IModel {
                 .institute((String) entity.getProperty(Keys.INSTITUTE))
                 .role((String) entity.getProperty(Keys.ROLE))
                 .isVerified((boolean) entity.getProperty(Keys.IS_VERIFIED))
+                .updated((long) entity.getProperty(Keys.UPDATED))
+                .created((long) entity.getProperty(Keys.CREATED))
                 .build();
     }
 
@@ -85,7 +78,18 @@ public class Account implements IModel {
         Gson gson = new Gson();
         BufferedReader bufferedReader = request.getReader();
         Account account = gson.fromJson(bufferedReader, Account.class);
+        account.setCreatedAndUpdated();
         return account;
+    }
+
+    @Override
+    public void setCreated() {
+        this.created = System.currentTimeMillis();
+    }
+
+    @Override
+    public void setUpdated() {
+        this.updated = System.currentTimeMillis();
     }
 
     public static class Keys {
@@ -99,5 +103,19 @@ public class Account implements IModel {
         public static String IS_VERIFIED = "isVerified";
         public static String CREATED = "created";
         public static String UPDATED = "updated";
+    }
+
+    public Entity setEntityAttributes(Entity accountEntity, boolean updateCall) {
+        accountEntity.setProperty(Keys.NAME, this.name);
+        accountEntity.setProperty(Keys.EMAIL, this.email);
+        accountEntity.setProperty(Keys.FIREBASE_UID, this.firebaseUid);
+        accountEntity.setProperty(Keys.IMAGE_URL, this.imageUrl);
+        accountEntity.setProperty(Keys.INSTITUTE, this.institute);
+        accountEntity.setProperty(Keys.ROLE, this.role);
+        accountEntity.setProperty(Keys.IS_VERIFIED, this.isVerified);
+        accountEntity.setProperty(Keys.UPDATED, this.updated);
+        if (!updateCall)
+            accountEntity.setProperty(Keys.CREATED, this.created);
+        return accountEntity;
     }
 }

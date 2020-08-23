@@ -12,4 +12,10 @@ public interface IModel {
     IModel createFromEntity(Entity entity);
     IModel createFromRequest(HttpServletRequest request);
     IModel createFromJsonRequest(HttpServletRequest request) throws IOException;
+    void setCreated();
+    void setUpdated();
+    default void setCreatedAndUpdated() {
+        this.setCreated();
+        this.setUpdated();
+    };
 }

@@ -29,15 +29,38 @@ public class AccountDao implements IAccountDao {
     }
 
     @Override
+    public ValidationResponse updateAccount(Account account) {
+        ValidationResponse validationResponse = account.validate();
+
+        if (validationResponse.getStatus() == ValidationErrors.STATUS_NOT_OK) {
+            return validationResponse;
+        }
+        Entity accountEntity = getAccountEntity(account.getFirebaseUid());
+        accountEntity = account.setEntityAttributes(accountEntity, true);
+
+        datastoreService.put(accountEntity);
+
+        return validationResponse;
+    }
+
+    @Override
     public Account getAccount(String firebaseUid) {
+        Entity accountEntity = getAccountEntity(firebaseUid);
+        if (accountEntity == null) return null;
+        return Account.builder().build().createFromEntity(accountEntity);
+    }
+
+    @Override
+    public Entity getAccountEntity(String firebaseUid) {
         Query.Filter filter = new Query.FilterPredicate(Account.Keys.FIREBASE_UID, Query.FilterOperator.EQUAL, firebaseUid);
         Query query = new Query(Account.Keys.KIND).setFilter(filter);
 
         PreparedQuery results = datastoreService.prepare(query);
-        if (results.asSingleEntity() == null)
+        try {
+            return results.asSingleEntity();
+        } catch (Exception e) {
             return null;
-        Account account = Account.builder().build().createFromEntity(results.asSingleEntity());
-        return account;
-
+        }
     }
+
 }
