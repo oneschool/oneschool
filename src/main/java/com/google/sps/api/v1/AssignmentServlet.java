@@ -114,7 +114,7 @@ public class AssignmentServlet extends HttpServlet {
             validationResponse = assignmentDao.updateAssignmentForStudent(assignment);
         }
         else {
-            validationResponse = assignmentDao.updateAssignmentForStudent(assignment);
+            validationResponse = assignmentDao.updateAssignmentForEducator(assignment);
         }
 
         return validationResponse;
