@@ -15,4 +15,5 @@ public interface IAccountDao {
     Account getAccount(String firebaseUid);
     Account getAccountById(String id);
     List<Account> getAllStudentsInClassroom(String classroomId);
+    List<Account> getAllStudents();
 }

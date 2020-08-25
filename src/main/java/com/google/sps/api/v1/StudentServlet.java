@@ -17,6 +17,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 @WebServlet("/api/v1/classroom/students")
@@ -43,12 +44,13 @@ public class StudentServlet extends HttpServlet {
 
         BufferedReader bufferedReader = req.getReader();
         ClassroomId classroomId = new Gson().fromJson(bufferedReader, ClassroomId.class);
+        List<Account> students = new ArrayList<>();
 
         if (classroomId == null || classroomId.getClassroomId() == null) {
-            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            return;
+            students = new AccountDao().getAllStudents();
+        } else {
+            students = new AccountDao().getAllStudentsInClassroom(classroomId.getClassroomId());
         }
-        List<Account> students = new AccountDao().getAllStudentsInClassroom(classroomId.getClassroomId());
 
         resp.setContentType(ServletUtils.CONTENT_TYPE_JSON);
         resp.setStatus(HttpServletResponse.SC_OK);

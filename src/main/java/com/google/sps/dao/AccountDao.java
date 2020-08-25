@@ -4,6 +4,7 @@ import com.google.api.core.ApiFuture;
 import com.google.cloud.firestore.*;
 import com.google.firebase.cloud.FirestoreClient;
 import com.google.sps.models.Account;
+import com.google.sps.models.Classroom;
 import com.google.sps.models.ClassroomStudent;
 import com.google.sps.utils.validation.ValidationErrors;
 import com.google.sps.utils.validation.ValidationResponse;
@@ -142,6 +143,25 @@ public class AccountDao implements IAccountDao {
         for (ClassroomStudent classroomStudent: classroomStudents) {
             String studentId = classroomStudent.getStudentId();
             students.add(getAccountById(studentId));
+        }
+        return students;
+    }
+
+    @Override
+    @SneakyThrows
+    public List<Account> getAllStudents() {
+        ApiFuture<QuerySnapshot> future = db.collection(Account.Keys.COLLECTION)
+                .whereEqualTo(Account.Keys.ROLE, "student").get();
+
+        List<QueryDocumentSnapshot> documents = future.get().getDocuments();
+
+
+        List<Account> students = new ArrayList<>();
+
+        for (DocumentSnapshot document: documents) {
+            Account currentStudent = document.toObject(Account.class);
+            currentStudent.setId(document.getId());
+            students.add(currentStudent);
         }
         return students;
     }
