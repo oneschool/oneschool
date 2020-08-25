@@ -47,9 +47,9 @@ public class AssignmentServlet extends HttpServlet {
 
         List<Assignment> assignments;
         if(account.getRole().equals("student")) {
-            assignments = assignmentDao.getAllAssignmentsStudent(account.getFirebaseUid());
+            assignments = assignmentDao.getAllAssignmentsStudent(account.getId());
         }
-        else {assignments = assignmentDao.getAllAssignmentsEducator(account.getFirebaseUid());
+        else {assignments = assignmentDao.getAllAssignmentsEducator(account.getId());
 
         }
 

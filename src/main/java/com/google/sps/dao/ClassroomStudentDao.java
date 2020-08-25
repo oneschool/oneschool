@@ -3,7 +3,6 @@ package com.google.sps.dao;
 import com.google.api.core.ApiFuture;
 import com.google.cloud.firestore.*;
 import com.google.firebase.cloud.FirestoreClient;
-import com.google.sps.models.Classroom;
 import com.google.sps.models.ClassroomStudent;
 import com.google.sps.utils.validation.ValidationErrors;
 import com.google.sps.utils.validation.ValidationResponse;
@@ -85,5 +84,23 @@ public class ClassroomStudentDao implements IClassroomStudentDao {
             classrooms.add(currentClassroom);
         }
         return classrooms;
+    }
+
+    @Override
+    @SneakyThrows
+    public List<ClassroomStudent> getStudentsForClassroom(String classroomId) {
+        ApiFuture<QuerySnapshot> future = db.collection(ClassroomStudent.Keys.COLLECTION)
+                .whereEqualTo(ClassroomStudent.Keys.CLASSROOM_ID, classroomId).get();
+
+        List<QueryDocumentSnapshot> documents = future.get().getDocuments();
+
+        List<ClassroomStudent> students = new ArrayList<>();
+
+        for (DocumentSnapshot document: documents) {
+            ClassroomStudent currentStudent = document.toObject(ClassroomStudent.class);
+            currentStudent.setId(document.getId());
+            students.add(currentStudent);
+        }
+        return students;
     }
 }

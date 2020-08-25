@@ -58,16 +58,7 @@ public class Assignment implements IModel {
                 );
             }
 
-            if (ValidationUtils.isEmptyOrWhiteSpace(studentId)) {
-                validationResponseBuilder.status(ValidationErrors.STATUS_NOT_OK);
-                validationResponseBuilder.message(ValidationErrors.MESSAGE_NOT_OK);
-
-                validationResponseBuilder.error(
-                        ValidationErrors.isEmptyOrWhiteSpace(Keys.STUDENT_ID)
-                );
-            }
-
-            if (ValidationUtils.isZero(Keys.CLASSROOM_ID)) {
+            if (ValidationUtils.isEmptyOrWhiteSpace(classroomId)) {
                 validationResponseBuilder.status(ValidationErrors.STATUS_NOT_OK);
                 validationResponseBuilder.message(ValidationErrors.MESSAGE_NOT_OK);
 
@@ -75,6 +66,15 @@ public class Assignment implements IModel {
                         ValidationErrors.isEmptyOrWhiteSpace(Keys.CLASSROOM_ID)
                 );
             }
+
+//            if (ValidationUtils.isZero(Keys.CLASSROOM_ID)) {
+//                validationResponseBuilder.status(ValidationErrors.STATUS_NOT_OK);
+//                validationResponseBuilder.message(ValidationErrors.MESSAGE_NOT_OK);
+//
+//                validationResponseBuilder.error(
+//                        ValidationErrors.isEmptyOrWhiteSpace(Keys.CLASSROOM_ID)
+//                );
+//            }
 
             //        if (ValidationUtils.isEmptyOrWhiteSpace(educatorId)) {
             //            validationResponseBuilder.status(ValidationErrors.STATUS_NOT_OK);
