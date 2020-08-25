@@ -148,6 +148,16 @@ public class Assignment implements IModel {
         return null;
     }
 
+    @Override
+    public void setCreated() {
+        this.created = System.currentTimeMillis();
+    }
+
+    @Override
+    public void setUpdated() {
+        this.updated = System.currentTimeMillis();
+    }
+
     public static class Keys {
         public static String KIND = "assignment";
         public static String NAME = "name";

@@ -1,89 +1,60 @@
 import Utils from "../../utils/Utils.js";
+import TheLoader from "../components/TheLoader.js";
+import { getAccount, postAccount as createAccount } from "../../osapi/OsApi.js";
 
 const Register = {
     render : async () => {
+        const Loader = await TheLoader.render();
+
         const view =  /*html*/`
-            <div class="home flex flex-wrap mt-10 px-40 items-center content-center justify-center">
-                <div class="w-full sm:w-full md:w-full lg:w-1/2 xl:w-1/2">
-                    <div class="w-full py-2 px-4 bg-lightblue rounded-lg h-full">
-                        <a href="/#" class="flex justify-center py-6">
-                            <p class="text-blue font-semibold text-2xl">oneschool</p>
-                        </a>
-                        <div class="flex flex-row pb-10">
-                            <div class="px-4">
-                                <svg height="20px" fill="#FFFFFF" viewBox="0 0 512 512" width="20px" xmlns="http://www.w3.org/2000/svg"><path d="m256 0c-141.164062 0-256 114.835938-256 256s114.835938 256 256 256 256-114.835938 256-256-114.835938-256-256-256zm0 0" fill="#6C63FF"/><path d="m385.75 201.75-138.667969 138.664062c-4.160156 4.160157-9.621093 6.253907-15.082031 6.253907s-10.921875-2.09375-15.082031-6.253907l-69.332031-69.332031c-8.34375-8.339843-8.34375-21.824219 0-30.164062 8.339843-8.34375 21.820312-8.34375 30.164062 0l54.25 54.25 123.585938-123.582031c8.339843-8.34375 21.820312-8.34375 30.164062 0 8.339844 8.339843 8.339844 21.820312 0 30.164062zm0 0"/></svg>
-                            </div>
-                            <div>
-                                <div class="font-semibold pb-3">Quick and free sign-up</div>
-                                <div class="text-lightgrey">Enter you e-mail address to create an account.</div>
-                            </div>
-                        </div>
-                        <div class="flex flex-row pb-10">
-                            <div class="px-4">
-                                <svg height="20px" fill="#FFFFFF" viewBox="0 0 512 512" width="20px" xmlns="http://www.w3.org/2000/svg"><path d="m256 0c-141.164062 0-256 114.835938-256 256s114.835938 256 256 256 256-114.835938 256-256-114.835938-256-256-256zm0 0" fill="#6C63FF"/><path d="m385.75 201.75-138.667969 138.664062c-4.160156 4.160157-9.621093 6.253907-15.082031 6.253907s-10.921875-2.09375-15.082031-6.253907l-69.332031-69.332031c-8.34375-8.339843-8.34375-21.824219 0-30.164062 8.339843-8.34375 21.820312-8.34375 30.164062 0l54.25 54.25 123.585938-123.582031c8.339843-8.34375 21.820312-8.34375 30.164062 0 8.339844 8.339843 8.339844 21.820312 0 30.164062zm0 0"/></svg>
-                            </div>
-                            <div>
-                                <div class="font-semibold pb-3">Schedule classes</div>
-                                <div class="text-lightgrey">Easily schedule recurring classes with your students.</div>
-                            </div>
-                        </div>
-                        <div class="flex flex-row pb-10">
-                            <div class="px-4">
-                                <svg height="20px" fill="#FFFFFF" viewBox="0 0 512 512" width="20px" xmlns="http://www.w3.org/2000/svg"><path d="m256 0c-141.164062 0-256 114.835938-256 256s114.835938 256 256 256 256-114.835938 256-256-114.835938-256-256-256zm0 0" fill="#6C63FF"/><path d="m385.75 201.75-138.667969 138.664062c-4.160156 4.160157-9.621093 6.253907-15.082031 6.253907s-10.921875-2.09375-15.082031-6.253907l-69.332031-69.332031c-8.34375-8.339843-8.34375-21.824219 0-30.164062 8.339843-8.34375 21.820312-8.34375 30.164062 0l54.25 54.25 123.585938-123.582031c8.339843-8.34375 21.820312-8.34375 30.164062 0 8.339844 8.339843 8.339844 21.820312 0 30.164062zm0 0"/></svg>
-                            </div>
-                            <div>
-                                <div class="font-semibold pb-3">Create assignments</div>
-                                <div class="text-lightgrey">Send assignments to all your students and track their submissions.</div>
-                            </div>
-                        </div>
-                        <div class="flex flex-row pb-10">
-                            <div class="px-4">
-                                <svg height="20px" fill="#FFFFFF" viewBox="0 0 512 512" width="20px" xmlns="http://www.w3.org/2000/svg"><path d="m256 0c-141.164062 0-256 114.835938-256 256s114.835938 256 256 256 256-114.835938 256-256-114.835938-256-256-256zm0 0" fill="#6C63FF"/><path d="m385.75 201.75-138.667969 138.664062c-4.160156 4.160157-9.621093 6.253907-15.082031 6.253907s-10.921875-2.09375-15.082031-6.253907l-69.332031-69.332031c-8.34375-8.339843-8.34375-21.824219 0-30.164062 8.339843-8.34375 21.820312-8.34375 30.164062 0l54.25 54.25 123.585938-123.582031c8.339843-8.34375 21.820312-8.34375 30.164062 0 8.339844 8.339843 8.339844 21.820312 0 30.164062zm0 0"/></svg>
-                            </div>
-                            <div>
-                                <div class="font-semibold pb-3">Follow your educator</div>
-                                <div class="text-lightgrey">Students can attend classes, submit your assignments and get scores.</div>
-                            </div>
-                        </div>
-                    </div>  
-                </div>
-                <div class="w-full sm:w-full md:w-full lg:w-1/2 xl:w-1/2 flex flex-col content-center items-center justify-center">
-                    <form class="bg-white w-full max-w-lg px-8 py-12 pt-6 pb-8" id="signup-form">
+            ${Loader}
+            <div id="page_register" class="min-h-screen flex items-center justify-center bg-white py-12 px-4 sm:px-6 lg:px-8">
+                <div class="max-w-md w-full">
+                    <div>
+                        <a href="/#">
+                        <img class="mx-auto h-8 w-auto" src="img/oneschool.svg" alt="OneSchool">
+                        <a>
+                        <h2 class="mt-6 text-center text-3xl leading-9 font-extrabold text-gray-900">
+                            Create your account
+                        </h2>
+                        <p class="mt-2 text-center text-sm leading-5 text-gray-600">
+                            Or
+                            <a href="#/login" class="font-medium text-indigo-600 hover:text-indigo-500 focus:outline-none focus:underline transition ease-in-out duration-150">
+                            Sign in to your existing account
+                            </a>
+                        </p>
+                    </div>
+                    <form class="mt-8" id="signup-form">
                         <div class="mb-4">
-                            <p class="block text-darkgrey text-lg py-1" for="email">
-                            Create your oneschool account
-                            </p>
-                        </div>
-                        <div class="mb-4">
-                            <label class="block text-darkgrey text-sm mb-2" for="email">
+                            <label class="block text-gray-900 text-sm mb-2" for="email">
                             Email
                             </label>
-                            <input required class="shadow appearance-none rounded w-full py-2 px-3 text-darkgrey leading-tight focus:outline-none focus:shadow-outline" autocomplete="username" id="email" type="text" placeholder="johndoe@gmail.com">
+                            <input required class="shadow appearance-none rounded w-full py-2 px-3 text-gray-900 leading-tight focus:outline-none focus:shadow-outline" autocomplete="username" id="email" type="text" placeholder="johndoe@gmail.com">
                         </div>
                         <div class="mb-4">
-                            <label class="block text-darkgrey text-sm mb-2" for="name">
+                            <label class="block text-gray-900 text-sm mb-2" for="name">
                             Full Name
                             </label>
-                            <input required class="shadow appearance-none rounded w-full py-2 px-3 text-darkgrey leading-tight focus:outline-none focus:shadow-outline" id="name" type="text" placeholder="John Doe">
+                            <input required class="shadow appearance-none rounded w-full py-2 px-3 text-gray-900 leading-tight focus:outline-none focus:shadow-outline" id="name" type="text" placeholder="John Doe">
                         </div>
                         <div class="mb-4">
-                            <label class="flex justify-between text-darkgrey text-sm mb-2" for="password">
+                            <label class="flex justify-between text-gray-900 text-sm mb-2" for="password">
                             Password
                             </label>
-                            <input required class="shadow appearance-none rounded w-full py-2 px-3 text-darkgrey leading-tight focus:outline-none focus:shadow-outline" id="password" autocomplete="new-password" type="password" placeholder="*******">
+                            <input required class="shadow appearance-none rounded w-full py-2 px-3 text-gray-900 leading-tight focus:outline-none focus:shadow-outline" id="password" autocomplete="new-password" type="password" placeholder="*******">
                         </div>
                         <div class="mb-4">
-                            <label class="flex justify-between text-darkgrey text-sm mb-2" for="confirm-password">
+                            <label class="flex justify-between text-gray-900 text-sm mb-2" for="confirm-password">
                             Confirm Password
                             </label>
-                            <input required class="shadow appearance-none rounded w-full py-2 px-3 text-darkgrey leading-tight focus:outline-none focus:shadow-outline" id="confirm-password" autocomplete="new-password" type="password" placeholder="*******">
+                            <input required class="shadow appearance-none rounded w-full py-2 px-3 text-gray-900 leading-tight focus:outline-none focus:shadow-outline" id="confirm-password" autocomplete="new-password" type="password" placeholder="*******">
                         </div>
                         <div class="mb-6">
-                            <label class="flex justify-between text-darkgrey text-sm mb-2" for="role">
+                            <label class="flex justify-between text-gray-900 text-sm mb-2" for="role">
                             Role
                             </label>
                             <div class="relative">
-                                <select class="shadow appearance-none bg-white rounded w-full py-2 px-3 text-darkgrey leading-tight focus:outline-none focus:shadow-outline" id="role">
+                                <select class="shadow appearance-none bg-white rounded w-full py-2 px-3 text-gray-900 leading-tight focus:outline-none focus:shadow-outline" id="role">
                                     <option>Educator</option>
                                     <option>Student</option>
                                 </select>
@@ -93,18 +64,11 @@ const Register = {
                             </div>
                         </div>
                         <div class="flex items-center justify-between">
-                            <button id="create-account" disabled="true" class="w-full disabled bg-blue hover:bg-blue text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="submit">
+                            <button id="create-account" disabled="true" class="w-full disabled bg-indigo-500 hover:bg-indigo-500 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="submit">
                             Create account
                             </button>
                         </div>
                     </form>
-                    <div class="mb-4">
-                        <p class="block text-darkgrey text-sm py-1" for="email">
-                        Have an account?<a class="inline-block align-baseline text-sm text-blue hover:text-blue px-2" href="#/login">
-                        Sign in
-                        </a>
-                        </p>
-                    </div>
                 </div>
             </div>
         `
@@ -113,6 +77,21 @@ const Register = {
     // All the code related to DOM interactions and controls go in here.
     // This is a separate call as these can be registered only after the DOM has been painted
     after_render: async () => {
+        
+        // yay
+        await TheLoader.after_render();
+        const pageLoader = document.querySelector("#page_loader");
+        const pageRegister = document.querySelector("#page_register");
+
+        const navigateToDashboard = () => {
+            const userData = JSON.parse(localStorage.getItem("user@os"));
+            if (userData?.role == "educator") {
+                Utils.navigateToHash("app");
+            } else if (userData?.role == "student") {
+                Utils.navigateToHash("app");
+            }
+        }
+
         const form = document.querySelector("#signup-form");
         const createAccountBtn = document.querySelector("#create-account")
         
@@ -168,6 +147,10 @@ const Register = {
         }
         
         const registerUser = ({email, name, password, role}) => {
+            // show loader
+            pageRegister.style.display = "none";
+            pageLoader.style.display = "";
+
             // firebase is only used for auth and nothing else
             auth.createUserWithEmailAndPassword(email, password).then(({user}) => {
                 // TODO: check back cred and update details on backend accordingly
@@ -177,9 +160,29 @@ const Register = {
                 // name?
                 // photoUrl?
                 // isNewUser?
-
-                // show some confirmation and say that their email need to be verified
-                Utils.navigateToHash("");
+                user.getIdToken().then((idToken) => {
+                    createAccount({
+                        xToken: idToken,
+                        account: {
+                            email: email,
+                            name: name,
+                            role: role
+                        }
+                    }).then((response) => {
+                        console.debug("reg successful, hit osapi success");
+                        console.debug(response);
+                        console.debug(idToken)
+                        getAccount({
+                            xToken: idToken
+                        }).then((response) => {
+                            localStorage.setItem("user@os", JSON.stringify(response.data));
+                            console.debug(response);
+                            console.debug("skadjhkasdh");
+                            navigateToDashboard();
+                            console.debug("dfaSF");
+                        })
+                    })
+                })
 
                 // lazy async task to send verification mail
                 if (!user.emailVerfied) {

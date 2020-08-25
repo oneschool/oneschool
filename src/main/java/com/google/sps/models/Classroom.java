@@ -110,4 +110,14 @@ public class Classroom implements IModel {
         public static String UPDATED = "updated";
 
     }
+
+    @Override
+    public void setCreated() {
+        this.created = System.currentTimeMillis();
+    }
+
+    @Override
+    public void setUpdated() {
+        this.updated = System.currentTimeMillis();
+    }
 }

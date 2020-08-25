@@ -62,7 +62,7 @@ public class AccountServlet extends HttpServlet {
      */
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        Account account = Account.builder().build().createFromJsonRequest(req);
+        Account account = (Account) new Account().createFromJsonRequest(req);
 
         String firebaseUid = req.getHeader("X-Firebase-Uid");
         account.setFirebaseUid(firebaseUid);
@@ -78,6 +78,30 @@ public class AccountServlet extends HttpServlet {
 
         if (validationResponse.getStatus() == ValidationErrors.STATUS_OK) {
             resp.setStatus(HttpServletResponse.SC_CREATED);
+        } else {
+            resp.setStatus(ValidationErrors.STATUS_NOT_OK);
+        }
+        resp.getWriter().println(gson.toJson(validationResponse));
+    }
+
+    @Override
+    protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        Account account = (Account) new Account().createFromJsonRequest(req);
+
+        String firebaseUid = req.getHeader("X-Firebase-Uid");
+        account.setFirebaseUid(firebaseUid);
+        log.info("Create Account Requested ..", firebaseUid);
+
+        if (accountDao.getAccount(firebaseUid) == null) {
+            resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
+            return;
+        }
+
+        ValidationResponse validationResponse = accountDao.updateAccount(account);
+        resp.setContentType(ServletUtils.CONTENT_TYPE_JSON);
+
+        if (validationResponse.getStatus() == ValidationErrors.STATUS_OK) {
+            resp.setStatus(HttpServletResponse.SC_OK);
         } else {
             resp.setStatus(ValidationErrors.STATUS_NOT_OK);
         }
