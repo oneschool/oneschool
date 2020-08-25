@@ -7,6 +7,6 @@ import com.google.sps.utils.validation.ValidationResponse;
 import java.util.List;
 
 public interface IClassroomDao {
-    ValidationResponse createClassroom(IModel classroom);
-    List<Classroom> getAllClassrooms();
+    ValidationResponse createClassroom(Classroom classroom);
+    List<Classroom> getAllClassroomsEducator();
 }
