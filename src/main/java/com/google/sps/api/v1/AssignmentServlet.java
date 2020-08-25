@@ -94,8 +94,6 @@ public class AssignmentServlet extends HttpServlet {
         Assignment assignment = (Assignment) new Assignment().createFromJsonRequest(req);
 
         String firebaseUid = req.getHeader("X-Firebase-Uid");
-        account.setFirebaseUid(firebaseUid);
-        log.info("Create Account Requested ..", firebaseUid);
 
         if (firebaseUid == null) {
             resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
@@ -117,6 +115,12 @@ public class AssignmentServlet extends HttpServlet {
             validationResponse = assignmentDao.updateAssignmentForEducator(assignment);
         }
 
-        return validationResponse;
+        resp.setContentType(ServletUtils.CONTENT_TYPE_JSON);
+        if (validationResponse.getStatus() == ValidationErrors.STATUS_OK) {
+            resp.setStatus(HttpServletResponse.SC_CREATED);
+        } else {
+            resp.setStatus(HttpServletResponse.SC_OK);
+        }
+        resp.getWriter().println(gson.toJson(validationResponse));
     }
 }

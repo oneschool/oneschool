@@ -38,7 +38,7 @@ public class AssignmentDao implements  IAssignmentDao {
         assignment.setEducatorId(classroom.getEducatorId());
 
         String assignmentId = UUID.randomUUID().toString();
-        assignment.setAssignmentId(id);
+        assignment.setAssignmentId(assignmentId);
 
         for (ClassroomStudent classroomStudent: students) {
             String id = UUID.randomUUID().toString();
@@ -95,31 +95,39 @@ public class AssignmentDao implements  IAssignmentDao {
         return assignments;
     }
 
+    @Override
+    @SneakyThrows
     public ValidationResponse updateAssignmentForStudent(Assignment newAssignment) {
-        //Set attribute submitted to true
 
-        ValidationResponse.Builder validationResponseBuilder = ValidationResponse.builder();
-        validationResponseBuilder.status(ValidationErrors.STATUS_OK);
-        validationResponseBuilder.message(ValidationErrors.MESSAGE_OK);
+        ValidationResponse.Builder validationResponseBuilder = null;
 
         Assignment oldAssignment = getAssignmentById(newAssignment.getId());
         newAssignment.setId(oldAssignment.getId());
         newAssignment.setUpdated(System.currentTimeMillis());
 
+        if (ValidationUtils.isEmptyOrWhiteSpace(newAssignment.getSolution())) {
+            validationResponseBuilder = ValidationResponse.builder();
+            validationResponseBuilder.status(ValidationErrors.STATUS_NOT_OK);
+            validationResponseBuilder.message(ValidationErrors.MESSAGE_NOT_OK);
+
+            validationResponseBuilder.error(
+                    ValidationErrors.isEmptyOrWhiteSpace(Assignment.Keys.SOLUTION)
+            );
+        }
         // weird not null is zero but
         if (newAssignment.getCreated() == 0) {
             newAssignment.setCreated(oldAssignment.getCreated());
         }
 
-        if (newAssignment.getAssignmentId() == 0) {
-            newAssignment.setAssignmentId(oldAssignment.getAssignmnetId());
+        if (newAssignment.getAssignmentId() == null) {
+            newAssignment.setAssignmentId(oldAssignment.getAssignmentId());
         }
 
-        if (newAssignment.getClassroomId() == 0) {
+        if (newAssignment.getClassroomId() == null) {
             newAssignment.setClassroomId(oldAssignment.getClassroomId());
         }
 
-        if (newAssignment.getEducatorId() == 0) {
+        if (newAssignment.getEducatorId() == null) {
             newAssignment.setEducatorId(oldAssignment.getEducatorId());
         }
 
@@ -139,42 +147,52 @@ public class AssignmentDao implements  IAssignmentDao {
             newAssignment.setDescription(oldAssignment.getDescription());
         }
 
-        newAssignment.setSubmitted(true));
+        //Set attribute submitted to true
+        newAssignment.setSubmitted(true);
 
         ApiFuture<WriteResult> writeResult = db.collection(Assignment.Keys.COLLECTION)
-                .document(newAccount.getId()).set(newAssignment);
+                .document(newAssignment.getId()).set(newAssignment);
 
         log.info("Update assignment called: " + writeResult.get().toString());
 
-        return validationResponse;
+        return ValidationResponse.builder()
+                .status(ValidationErrors.STATUS_OK)
+                .message(ValidationErrors.MESSAGE_OK)
+                .build();
 
     }
 
+    @Override
+    @SneakyThrows
     public ValidationResponse updateAssignmentForEducator(Assignment newAssignment) {
-        //Set attribute checked to true
 
-        ValidationResponse.Builder validationResponseBuilder = ValidationResponse.builder();
-        validationResponseBuilder.status(ValidationErrors.STATUS_OK);
-        validationResponseBuilder.message(ValidationErrors.MESSAGE_OK);
+        ValidationResponse.Builder validationResponseBuilder = null;
 
         Assignment oldAssignment = getAssignmentById(newAssignment.getId());
         newAssignment.setId(oldAssignment.getId());
         newAssignment.setUpdated(System.currentTimeMillis());
+
+        if(newAssignment.getScored_marks() < 0 || newAssignment.getScored_marks() > oldAssignment.getTotal_marks()){
+            validationResponseBuilder = ValidationResponse.builder();
+            validationResponseBuilder.status(ValidationErrors.STATUS_NOT_OK);
+            validationResponseBuilder.message(ValidationErrors.MESSAGE_NOT_OK);
+            return validationResponseBuilder.build();
+        }
 
         // weird not null is zero but
         if (newAssignment.getCreated() == 0) {
             newAssignment.setCreated(oldAssignment.getCreated());
         }
 
-        if (newAssignment.getAssignmentId() == 0) {
-            newAssignment.setAssignmentId(oldAssignment.getAssignmnetId());
+        if (newAssignment.getAssignmentId() == null) {
+            newAssignment.setAssignmentId(oldAssignment.getAssignmentId());
         }
 
-        if (newAssignment.getClassroomId() == 0) {
+        if (newAssignment.getClassroomId() == null) {
             newAssignment.setClassroomId(oldAssignment.getClassroomId());
         }
 
-        if (newAssignment.getEducatorId() == 0) {
+        if (newAssignment.getEducatorId() == null) {
             newAssignment.setEducatorId(oldAssignment.getEducatorId());
         }
 
@@ -198,14 +216,18 @@ public class AssignmentDao implements  IAssignmentDao {
             newAssignment.setSubmitted(oldAssignment.isSubmitted());
         }
 
+        //Set attribute checked to true
         newAssignment.setChecked(true);
 
         ApiFuture<WriteResult> writeResult = db.collection(Assignment.Keys.COLLECTION)
-                .document(newAccount.getId()).set(newAssignment);
+                .document(newAssignment.getId()).set(newAssignment);
 
         log.info("Update assignment called: " + writeResult.get().toString());
 
-        return validationResponse;
+        return ValidationResponse.builder()
+                .status(ValidationErrors.STATUS_OK)
+                .message(ValidationErrors.MESSAGE_OK)
+                .build();
     }
 
     @Override
@@ -221,7 +243,7 @@ public class AssignmentDao implements  IAssignmentDao {
         if (documentSnapshot.exists()) {
             Assignment assignment = documentSnapshot.toObject(Assignment.class);
             assignment.setId(documentSnapshot.getId());
-            return classroom;
+            return assignment;
         }
         return null;
     }
