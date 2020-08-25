@@ -1,66 +1,118 @@
 package com.google.sps.dao;
 
-import com.google.appengine.api.datastore.*;
+import com.google.api.core.ApiFuture;
+import com.google.cloud.firestore.*;
+import com.google.firebase.cloud.FirestoreClient;
 import com.google.sps.models.Account;
-import com.google.sps.models.IModel;
 import com.google.sps.utils.validation.ValidationErrors;
 import com.google.sps.utils.validation.ValidationResponse;
+import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 
+import java.util.List;
+import java.util.UUID;
+
+@Slf4j
 public class AccountDao implements IAccountDao {
 
-    private DatastoreService datastoreService;
+    private final static String COLLECTION = "account";
+    private Firestore db;
 
     public AccountDao() {
-        datastoreService = DatastoreServiceFactory.getDatastoreService();
+        db = FirestoreClient.getFirestore();
     }
 
     @Override
-    public ValidationResponse createAccount(IModel account) {
-        ValidationResponse validationResponse = account.validate();
+    @SneakyThrows // no time
+    public ValidationResponse createAccount(Account account) {
+        ValidationResponse validationResponse = account.validate(true);
 
         if (validationResponse.getStatus() == ValidationErrors.STATUS_NOT_OK) {
             return validationResponse;
         }
 
-        Entity accountEntity = account.getAsEntity();
-        datastoreService.put(accountEntity);
+        // new id
+        String id = UUID.randomUUID().toString();
+        account.setId(id);
 
+        // time
+        account.setCreated(System.currentTimeMillis());
+        account.setUpdated(account.getCreated());
+
+        // async call
+        ApiFuture<WriteResult> future = db.collection(COLLECTION).document(account.getId()).set(account);
+
+        // to make it async comment the following line
+        // not catching an exception here, no time
+        log.info("Account creation result: " + future.get().toString());
         return validationResponse;
     }
 
     @Override
-    public ValidationResponse updateAccount(Account account) {
-        ValidationResponse validationResponse = account.validate();
+    @SneakyThrows // no time
+    public ValidationResponse updateAccount(Account newAccount) {
+        ValidationResponse validationResponse = newAccount.validate(false);
 
         if (validationResponse.getStatus() == ValidationErrors.STATUS_NOT_OK) {
             return validationResponse;
         }
-        Entity accountEntity = getAccountEntity(account.getFirebaseUid());
-        accountEntity = account.setEntityAttributes(accountEntity, true);
 
-        datastoreService.put(accountEntity);
+        Account oldAccount = getAccount(newAccount.getFirebaseUid());
 
+        newAccount.setId(oldAccount.getId());
+        // since we are supporting partial updates do this
+        // as if certain field is left null Firestore will remove that value from db
+        newAccount.setRole(oldAccount.getRole());
+        newAccount.setUpdated(System.currentTimeMillis());
+
+        // weird not null is zero but
+        if (newAccount.getCreated() == 0) {
+            newAccount.setCreated(oldAccount.getCreated());
+        }
+
+        if (newAccount.getName() == null) {
+            newAccount.setName(oldAccount.getName());
+        }
+
+        if (newAccount.getEmail() == null) {
+            newAccount.setEmail(oldAccount.getEmail());
+        }
+
+        if (newAccount.getImageUrl() == null) {
+            newAccount.setImageUrl(oldAccount.getImageUrl());
+        }
+
+        // weird this sets to false and not null
+        if (!newAccount.isVerified()) {
+            newAccount.setVerified(oldAccount.isVerified());
+        }
+
+        if (newAccount.getInstitute() == null) {
+            newAccount.setInstitute(oldAccount.getInstitute());
+        }
+
+        // set options merge did not work due to class thing
+        // https://firebase.google.com/docs/reference/android/com/google/firebase/firestore/SetOptions#merge()
+        ApiFuture<WriteResult> writeResult = db.collection(COLLECTION)
+                .document(newAccount.getId()).set(newAccount);
+
+        log.info("Update account called: " + writeResult.get().toString());
         return validationResponse;
     }
 
     @Override
+    @SneakyThrows
     public Account getAccount(String firebaseUid) {
-        Entity accountEntity = getAccountEntity(firebaseUid);
-        if (accountEntity == null) return null;
-        return Account.builder().build().createFromEntity(accountEntity);
-    }
-
-    @Override
-    public Entity getAccountEntity(String firebaseUid) {
-        Query.Filter filter = new Query.FilterPredicate(Account.Keys.FIREBASE_UID, Query.FilterOperator.EQUAL, firebaseUid);
-        Query query = new Query(Account.Keys.KIND).setFilter(filter);
-
-        PreparedQuery results = datastoreService.prepare(query);
-        try {
-            return results.asSingleEntity();
-        } catch (Exception e) {
-            return null;
+        ApiFuture<QuerySnapshot> future = db.collection(COLLECTION)
+                .whereEqualTo(Account.Keys.FIREBASE_UID, firebaseUid).get();
+        List<QueryDocumentSnapshot> documents = future.get().getDocuments();
+        Account account = null;
+        for (DocumentSnapshot document : documents) {
+            account = document.toObject(Account.class);
+            account.setId(document.getId());
+            log.info(account.toString());
+            return account;
         }
+        return null;
     }
-
 }

@@ -62,7 +62,7 @@ public class AccountServlet extends HttpServlet {
      */
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        Account account = Account.builder().build().createFromJsonRequest(req);
+        Account account = new Account().createFromJsonRequest(req);
 
         String firebaseUid = req.getHeader("X-Firebase-Uid");
         account.setFirebaseUid(firebaseUid);
@@ -86,7 +86,7 @@ public class AccountServlet extends HttpServlet {
 
     @Override
     protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        Account account = Account.builder().build().createFromJsonRequest(req);
+        Account account = new Account().createFromJsonRequest(req);
 
         String firebaseUid = req.getHeader("X-Firebase-Uid");
         account.setFirebaseUid(firebaseUid);
