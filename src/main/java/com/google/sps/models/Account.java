@@ -40,7 +40,7 @@ public class Account implements IModel {
         if (createCall) {
             this.setRole(this.getRole().toLowerCase());
             this.setEmail(this.getEmail().toLowerCase());
-            if (this.getRole() != "educator" && this.getRole() != "student" && this.getRole() != "admin") {
+            if (!this.getRole().equals("educator") && !this.getRole().equals("student") && !this.getRole().equals("admin")) {
                 validationResponseBuilder.message("Role not allowed");
                 validationResponseBuilder.status(HttpServletResponse.SC_BAD_REQUEST);
             }
@@ -61,16 +61,10 @@ public class Account implements IModel {
         return validationResponseBuilder.build();
     }
 
-    @Override
-    public Account createFromJsonRequest(HttpServletRequest request) throws IOException {
-        Gson gson = new Gson();
-        BufferedReader bufferedReader = request.getReader();
-        Account account = gson.fromJson(bufferedReader, Account.class);
-        return account;
-    }
 
     // will help in queries
     public static class Keys {
+        public static String COLLECTION = "account";
         public static String NAME = "name";
         public static String EMAIL = "email";
         public static String FIREBASE_UID = "firebaseUid";

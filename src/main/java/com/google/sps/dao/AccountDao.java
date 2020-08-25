@@ -15,7 +15,6 @@ import java.util.UUID;
 @Slf4j
 public class AccountDao implements IAccountDao {
 
-    private final static String COLLECTION = "account";
     private Firestore db;
 
     public AccountDao() {
@@ -40,7 +39,7 @@ public class AccountDao implements IAccountDao {
         account.setUpdated(account.getCreated());
 
         // async call
-        ApiFuture<WriteResult> future = db.collection(COLLECTION).document(account.getId()).set(account);
+        ApiFuture<WriteResult> future = db.collection(Account.Keys.COLLECTION).document(account.getId()).set(account);
 
         // to make it async comment the following line
         // not catching an exception here, no time
@@ -93,7 +92,7 @@ public class AccountDao implements IAccountDao {
 
         // set options merge did not work due to class thing
         // https://firebase.google.com/docs/reference/android/com/google/firebase/firestore/SetOptions#merge()
-        ApiFuture<WriteResult> writeResult = db.collection(COLLECTION)
+        ApiFuture<WriteResult> writeResult = db.collection(Account.Keys.COLLECTION)
                 .document(newAccount.getId()).set(newAccount);
 
         log.info("Update account called: " + writeResult.get().toString());
@@ -103,7 +102,7 @@ public class AccountDao implements IAccountDao {
     @Override
     @SneakyThrows
     public Account getAccount(String firebaseUid) {
-        ApiFuture<QuerySnapshot> future = db.collection(COLLECTION)
+        ApiFuture<QuerySnapshot> future = db.collection(Account.Keys.COLLECTION)
                 .whereEqualTo(Account.Keys.FIREBASE_UID, firebaseUid).get();
         List<QueryDocumentSnapshot> documents = future.get().getDocuments();
         Account account = null;
