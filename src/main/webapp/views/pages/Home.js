@@ -1,10 +1,10 @@
-import TheNavBar from '../components/TheNavBar.js';
+import TheFooter from "../components/TheFooter.js";
 
 const Home = {
     render : async () => {
         // Always remember to run all the after_render functions 
         // of loaded components in after_render method of the page
-        
+        const Footer = await TheFooter.render();
         const view =  /*html*/`
             <div style="display: none;" id="gtd-banner" class="bg-indigo-600">
                 <div class="max-w-screen-xl mx-auto py-3 px-3 sm:px-6 lg:px-8">
@@ -122,10 +122,14 @@ const Home = {
                 </main>
             </div>
             </div>
+            ${Footer}
         `
         return view
     },
     after_render: async () => {
+        // after render of all function calls
+        await TheFooter.after_render();
+
         // after_render of components loaded in the page
         const signOutBtn = null || document.querySelector("#sign-out-btn");
         const signInBtn = null || document.querySelector("#sign-in-btn")

@@ -12,7 +12,7 @@ import Utils from './utils/Utils.js'
 
 import { setDomain } from './osapi/OsApi.js';
 
-const server = "/api/v1"
+const server = "http://localhost:8080/api/v1"
 setDomain(server)
 
 // List of supported routes. Any url other than these routes will throw a 404 error
@@ -31,9 +31,9 @@ const router = async () => {
     const content = null || document.getElementById('page_container');
     const footer = null || document.getElementById('footer_container');
     
-    // Render the footer
-    footer.innerHTML = await TheFooter.render();
-    await TheFooter.after_render();
+    // // Render the footer
+    // footer.innerHTML = await TheFooter.render();
+    // await TheFooter.after_render();
 
 
     // Get the parsed URl from the addressbar

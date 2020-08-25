@@ -1,10 +1,11 @@
 import Utils from "../../utils/Utils.js";
 
+
 const Educator = {
   render : async () => {
       // Always remember to run all the after_render functions 
       // of loaded components in after_render method of the page
-      
+
       const view =  /*html*/`
         <div class="h-screen flex overflow-hidden bg-gray-100" x-data="{ sideBarOpen: false }" @keydown.window.escape="sideBarOpen = false">
           <!-- Off-canvas menu for mobile -->
@@ -216,9 +217,6 @@ const Educator = {
       return view
   },
   after_render: async () => {
-    const footerContainer = document.querySelector("#footer_container")
-    // hide footer
-    footerContainer.style.display = "none";
     
     // ----------- consts
     const userData = JSON.parse(localStorage.getItem("user@os"));

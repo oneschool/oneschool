@@ -1,5 +1,5 @@
 /* eslint-disable */
-let domain = '/api/v1'
+let domain = 'http://localhost:8080/api/v1'
 let axiosInstance = axios.create()
 
 const stringify = function queryStringify (obj, prefix) {
