@@ -1,87 +1,121 @@
 package com.google.sps.dao;
 
+import com.google.api.core.ApiFuture;
 import com.google.appengine.api.datastore.*;
+import com.google.cloud.firestore.*;
+import com.google.firebase.cloud.FirestoreClient;
+import com.google.sps.models.Account;
 import com.google.sps.models.Assignment;
 import com.google.sps.models.IModel;
 import com.google.sps.utils.validation.ValidationErrors;
 import com.google.sps.utils.validation.ValidationResponse;
+import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
-public class AssignmentDao implements  IAssignmentDao{
+@Slf4j
+public class AssignmentDao implements  IAssignmentDao {
 
-    private DatastoreService datastoreService;
+    private Firestore db;
 
     public AssignmentDao() {
-        datastoreService = DatastoreServiceFactory.getDatastoreService();
+        db = FirestoreClient.getFirestore();
     }
 
     @Override
-    public ValidationResponse createAssignment(IModel assignment) {
-        ValidationResponse validationResponse = assignment.validate();
+    @SneakyThrows
+    public ValidationResponse createAssignment(Assignment assignment) {
+        ValidationResponse validationResponse = assignment.validate(true);
 
         if (validationResponse.getStatus() == ValidationErrors.STATUS_NOT_OK) {
             return validationResponse;
         }
 
-        Entity assignmentEntity = assignment.getAsEntity();
-        datastoreService.put(assignmentEntity);
+        String id = UUID.randomUUID().toString();
+        assignment.setId(id);
 
+        assignment.setCreated(System.currentTimeMillis());
+        assignment.setUpdated(System.currentTimeMillis());
+
+        ApiFuture<WriteResult> future = db.collection(Assignment.Keys.COLLECTION)
+                .document(assignment.getId())
+                .set(assignment);
+
+        log.info("Assignment created: ", future.get().toString());
         return validationResponse;
     }
 
     @Override
-    public List<Assignment> getAllAssignments() {
-        Query query = new Query(Assignment.Keys.KIND);
+    @SneakyThrows
+    public List<Assignment> getAllAssignmentsStudent(String studentId) {
+        ApiFuture<QuerySnapshot> future = db.collection(Assignment.Keys.COLLECTION)
+                .whereEqualTo(Assignment.Keys.STUDENT_ID, studentId).get();
 
-        PreparedQuery results = datastoreService.prepare(query);
+        List<QueryDocumentSnapshot> documents = future.get().getDocuments();
 
         List<Assignment> assignments = new ArrayList<>();
 
-        for(Entity entity: results.asIterable()) {
-            assignments.add(
-              Assignment.builder().build().createFromEntity(entity)
-            );
+        for (DocumentSnapshot document: documents) {
+            Assignment assignment = document.toObject(Assignment.class);
+            assignment.setId(document.getId());
+            assignments.add(assignment);
         }
         return assignments;
     }
 
     @Override
-    public List<Assignment> getAllPendingAssignments() {
-        Query query = new Query(Assignment.Keys.KIND);
+    @SneakyThrows
+    public List<Assignment> getAllAssignmentsEducator(String educatorId) {
+        ApiFuture<QuerySnapshot> future = db.collection(Assignment.Keys.COLLECTION)
+                .whereEqualTo(Assignment.Keys.EDUCATOR_ID, educatorId).get();
 
-        PreparedQuery results = datastoreService.prepare(query);
+        List<QueryDocumentSnapshot> documents = future.get().getDocuments();
 
         List<Assignment> assignments = new ArrayList<>();
 
-        for(Entity entity: results.asIterable()) {
-
-            if(!((boolean)entity.getProperty(Assignment.Keys.SUBMITTED))) {
-                assignments.add(
-                        Assignment.builder().build().createFromEntity(entity)
-                );
-            }
+        for (DocumentSnapshot document: documents) {
+            Assignment assignment = document.toObject(Assignment.class);
+            assignment.setId(document.getId());
+            assignments.add(assignment);
         }
         return assignments;
     }
 
-    @Override
-    public List<Assignment> getAllSubmittedAssignments() {
-        Query query = new Query(Assignment.Keys.KIND);
-
-        PreparedQuery results = datastoreService.prepare(query);
-
-        List<Assignment> assignments = new ArrayList<>();
-
-        for(Entity entity: results.asIterable()) {
-
-            if((boolean)entity.getProperty(Assignment.Keys.SUBMITTED)) {
-                assignments.add(
-                        Assignment.builder().build().createFromEntity(entity)
-                );
-            }
-        }
-        return assignments;
-    }
+//    @Override
+//    public List<Assignment> getAllPendingAssignments() {
+//        ApiFuture<QuerySnapshot> future = db.collection(Assignment.Keys.COLLECTION).get();
+//
+//        List<QueryDocumentSnapshot> documents = future.get().getDocuments();
+//
+//        List<Assignment> assignments = new ArrayList<>();
+//
+//        for (DocumentSnapshot document: documents) {
+//            Assignment assignment = document.toObject(Assignment.class);
+//            assignment.setId(document.getId());
+//            assignments.add(assignment);
+//        }
+//        return assignments;
+//    }
+//
+//    @Override
+//    public List<Assignment> getAllSubmittedAssignments() {
+//        Query query = new Query(Assignment.Keys.KIND);
+//
+//        PreparedQuery results = datastoreService.prepare(query);
+//
+//        List<Assignment> assignments = new ArrayList<>();
+//
+//        for(Entity entity: results.asIterable()) {
+//
+//            if((boolean)entity.getProperty(Assignment.Keys.SUBMITTED)) {
+//                assignments.add(
+//                        Assignment.builder().build().createFromEntity(entity)
+//                );
+//            }
+//        }
+//        return assignments;
+//    }
 }

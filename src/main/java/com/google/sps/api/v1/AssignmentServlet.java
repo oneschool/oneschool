@@ -1,8 +1,11 @@
 package com.google.sps.api.v1;
 
 import com.google.gson.Gson;
+import com.google.sps.dao.AccountDao;
 import com.google.sps.dao.AssignmentDao;
+import com.google.sps.dao.IAccountDao;
 import com.google.sps.dao.IAssignmentDao;
+import com.google.sps.models.Account;
 import com.google.sps.models.Assignment;
 import com.google.sps.utils.validation.ServletUtils;
 import com.google.sps.utils.validation.ValidationErrors;
@@ -20,15 +23,35 @@ import java.util.List;
 public class AssignmentServlet extends HttpServlet {
     private Gson gson;
     private IAssignmentDao assignmentDao;
+    private IAccountDao accountDao;
 
     public AssignmentServlet() {
         gson = new Gson();
         assignmentDao = new AssignmentDao();
+        accountDao = new AccountDao();
     }
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        List<Assignment> assignments = assignmentDao.getAllAssignments();
+        String firebaseUid = req.getHeader("X-Firebase-Uid");
+        if (firebaseUid == null) {
+            resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            return;
+        }
+        Account account = accountDao.getAccount(firebaseUid);
+
+        if (account == null) {
+            resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
+            return;
+        }
+
+        List<Assignment> assignments;
+        if(account.getRole().equals("student")) {
+            assignments = assignmentDao.getAllAssignmentsStudent(account.getFirebaseUid());
+        }
+        else {assignments = assignmentDao.getAllAssignmentsEducator(account.getFirebaseUid());
+
+        }
 
         resp.setContentType(ServletUtils.CONTENT_TYPE_JSON);
         resp.setStatus(HttpServletResponse.SC_OK);
@@ -37,7 +60,23 @@ public class AssignmentServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        Assignment assignment = Assignment.builder().build().createFromRequest(req);
+        Assignment assignment = (Assignment) new Assignment().createFromJsonRequest(req);
+
+        String firebaseUid = req.getHeader("X-Firebase-Uid");
+
+        if (firebaseUid == null) {
+            resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            return;
+        }
+        Account account = accountDao.getAccount(firebaseUid);
+
+        if (account == null) {
+            resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
+            return;
+        }
+
+        // create an assignment (for educator) or upload an assignment (for student)
+        // the functionality for both is same so taking the function as createAssignment only
 
         ValidationResponse validationResponse = assignmentDao.createAssignment(assignment);
 
@@ -49,5 +88,4 @@ public class AssignmentServlet extends HttpServlet {
         }
         resp.getWriter().println(gson.toJson(validationResponse));
     }
-
 }
