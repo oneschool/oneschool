@@ -7,9 +7,9 @@ import com.google.sps.utils.validation.ValidationResponse;
 import java.util.List;
 
 public interface IAssignmentDao {
-    ValidationResponse createAssignment(IModel assignment);
+    ValidationResponse createAssignment(Assignment assignment);
     List<Assignment> getAllAssignmentsStudent(String studentId);
     List<Assignment> getAllAssignmentsEducator(String educatorId);
-    List<Assignment> getAllPendingAssignments();
-    List<Assignment> getAllSubmittedAssignments();
+//    List<Assignment> getAllPendingAssignments();
+//    List<Assignment> getAllSubmittedAssignments();
 }

@@ -10,6 +10,7 @@ import com.google.sps.models.Classroom;
 import com.google.sps.utils.validation.ServletUtils;
 import com.google.sps.utils.validation.ValidationErrors;
 import com.google.sps.utils.validation.ValidationResponse;
+import lombok.extern.slf4j.Slf4j;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -20,6 +21,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 @WebServlet("/api/v1/classroom")
 public class ClassroomServlet extends HttpServlet {
     private Gson gson;
@@ -46,7 +48,9 @@ public class ClassroomServlet extends HttpServlet {
         }
         List<Classroom> classrooms = new ArrayList<>();
         if (account.getRole().equals("educator")) {
-            classrooms = classroomDao.getAllClassroomsEducator();
+            classrooms = classroomDao.getAllClassroomsEducator(account.getId());
+        } else {
+            classrooms = classroomDao.getAllClassroomsStudent(account.getId());
         }
 
         resp.setContentType(ServletUtils.CONTENT_TYPE_JSON);
@@ -73,8 +77,10 @@ public class ClassroomServlet extends HttpServlet {
             resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             return;
         }
+        log.info("Account: " + account.getEmail());
 
         Classroom classroom = (Classroom) new Classroom().createFromJsonRequest(req);
+        log.info(String.format("Classroom: %s", classroom));
         classroom.setEducatorId(account.getId());
 
         ValidationResponse validationResponse = classroomDao.createClassroom(classroom);

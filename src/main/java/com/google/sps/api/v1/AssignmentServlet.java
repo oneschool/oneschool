@@ -60,7 +60,7 @@ public class AssignmentServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        Assignment assignment = Assignment.builder().build().createFromJsonRequest(req);
+        Assignment assignment = (Assignment) new Assignment().createFromJsonRequest(req);
 
         String firebaseUid = req.getHeader("X-Firebase-Uid");
 
@@ -88,5 +88,4 @@ public class AssignmentServlet extends HttpServlet {
         }
         resp.getWriter().println(gson.toJson(validationResponse));
     }
-
 }

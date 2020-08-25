@@ -24,10 +24,8 @@ public class Classroom implements IModel {
     private String name;
     private String description;
     private String educatorId;
-    @Builder.Default
-    private long created = System.currentTimeMillis();
-    @Builder.Default
-    private long updated = System.currentTimeMillis();
+    private long created;
+    private long updated;
 
     @Override
     public ValidationResponse validate(boolean createCall) {
@@ -71,6 +69,19 @@ public class Classroom implements IModel {
                 .message(ValidationErrors.MESSAGE_OK)
                 .build();
     }
+
+    @Override
+    public String toString() {
+        return "Classroom{" +
+                "id='" + id + '\'' +
+                ", name='" + name + '\'' +
+                ", description='" + description + '\'' +
+                ", educatorId='" + educatorId + '\'' +
+                ", created=" + created +
+                ", updated=" + updated +
+                '}';
+    }
+
     public static class Keys {
         public static String COLLECTION = "classroom";
         public static String NAME = "name";

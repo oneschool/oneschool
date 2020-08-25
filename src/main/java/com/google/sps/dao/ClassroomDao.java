@@ -48,8 +48,9 @@ public class ClassroomDao implements IClassroomDao {
 
     @Override
     @SneakyThrows
-    public List<Classroom> getAllClassroomsEducator() {
-        ApiFuture<QuerySnapshot> future = db.collection(Classroom.Keys.COLLECTION).get();
+    public List<Classroom> getAllClassroomsEducator(String educatorId) {
+        ApiFuture<QuerySnapshot> future = db.collection(Classroom.Keys.COLLECTION)
+                .whereEqualTo(Classroom.Keys.EDUCATOR_ID, educatorId).get();
 
         List<QueryDocumentSnapshot> documents = future.get().getDocuments();
 
@@ -62,5 +63,28 @@ public class ClassroomDao implements IClassroomDao {
             classrooms.add(currentClassroom);
         }
         return classrooms;
+    }
+
+    @Override
+    public List<Classroom> getAllClassroomsStudent(String studentId) {
+        return null;
+    }
+
+    @Override
+    @SneakyThrows
+    public Classroom getClassroomById(String id) {
+        DocumentReference documentReference = db.collection(Classroom.Keys.COLLECTION)
+                .document(id);
+
+        ApiFuture<DocumentSnapshot> future = documentReference.get();
+
+        DocumentSnapshot documentSnapshot = future.get();
+
+        if (documentSnapshot.exists()) {
+            Classroom classroom = documentSnapshot.toObject(Classroom.class);
+            classroom.setId(documentSnapshot.getId());
+            return classroom;
+        }
+        return null;
     }
 }
