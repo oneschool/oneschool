@@ -6,6 +6,7 @@ import com.google.cloud.firestore.*;
 import com.google.firebase.cloud.FirestoreClient;
 import com.google.sps.models.Account;
 import com.google.sps.models.Classroom;
+import com.google.sps.models.ClassroomStudent;
 import com.google.sps.utils.validation.ValidationErrors;
 import com.google.sps.utils.validation.ValidationResponse;
 import lombok.SneakyThrows;
@@ -67,7 +68,15 @@ public class ClassroomDao implements IClassroomDao {
 
     @Override
     public List<Classroom> getAllClassroomsStudent(String studentId) {
-        return null;
+        List<ClassroomStudent> classroomStudents = new ClassroomStudentDao().getClassroomsForStudent(studentId);
+
+        List<Classroom> classrooms = new ArrayList<>();
+
+        for (ClassroomStudent classroomStudent: classroomStudents) {
+            Classroom classroom = getClassroomById(classroomStudent.getClassroomId());
+            classrooms.add(classroom);
+        }
+        return classrooms;
     }
 
     @Override
