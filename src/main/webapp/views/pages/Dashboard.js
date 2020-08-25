@@ -1,10 +1,15 @@
 import Utils from "../../utils/Utils.js";
-
+import TheEducatorDashboard from "../components/TheEducatorDashboard.js";
+import TheStudentDashboard from "../components/TheStudentDashboard.js";
+import TheLoader from "../components/TheLoader.js";
 
 const Educator = {
   render : async () => {
       // Always remember to run all the after_render functions 
       // of loaded components in after_render method of the page
+      const EducatorDashboard = await TheEducatorDashboard.render();
+      const StudentDashboard = await TheStudentDashboard.render();
+      const Loader = await TheLoader.render();
 
       const view =  /*html*/`
         <div class="h-screen flex overflow-hidden bg-gray-100" x-data="{ sideBarOpen: false }" @keydown.window.escape="sideBarOpen = false">
@@ -205,7 +210,19 @@ const Educator = {
                 <div class="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
                   <!-- Replace with your content -->
                   <div class="py-4">
-                    <div class="border-4 border-dashed border-gray-200 rounded-lg h-96"></div>
+                    <div id="educator-dashboard" style="display: none;">
+                      ${EducatorDashboard}
+                    </div>
+                    <div id="educator-classrooms" style="display: none;">
+                    </div>
+                    <div id="educator-assigments" style="display: none;">
+                    </div>
+                    <div id="student-dashboard" style="display: none;">
+                    </div>
+                    <div id="student-classrooms" style="display: none;">
+                    </div>
+                    <div id="student-assigments" style="display: none;">
+                    </div>
                   </div>
                   <!-- /End replace -->
                 </div>
@@ -217,7 +234,10 @@ const Educator = {
       return view
   },
   after_render: async () => {
-    
+    await TheLoader.after_render();
+    await TheEducatorDashboard.after_render();
+    await TheStudentDashboard.after_render();
+
     // ----------- consts
     const userData = JSON.parse(localStorage.getItem("user@os"));
     const educatorBadges = document.getElementsByClassName("educator-badge");
@@ -226,9 +246,24 @@ const Educator = {
     const classroomSidebar = document.getElementsByClassName("classrooms");
     const assignmentSidebar = document.getElementsByClassName("assignments");
     const sectionHeader = document.querySelector("#section-header")
-    
+    const educatorDashboard = document.querySelector("#educator-dashboard");
+    const educatorClassrooms = document.querySelector("#educator-classrooms");
+    const educatorAssignments = document.querySelector("#educator-assigments");
+    const studentDashboard = document.querySelector("#student-dashboard");
+    const studentClassrooms = document.querySelector("#student-classrooms");
+    const studentAssignments = document.querySelector("#student-assigments");
+    const sections = {
+      DASHBOARD: "dashboard",
+      CLASSROOMS: "classrooms",
+      ASSIGNMENTS: "assignments"
+    }
+    const users = {
+      EDUCATOR: "educator",
+      STUDENT: "student"
+    }
+    const activeUser = userData.role
+    const activeSection = sections.DASHBOARD;
     const signOutBtn = document.querySelector("#sign-out-btn");
-    console.debug(signOutBtn);
 
     // ----------- methods
     const navigateToLogin = () => {
@@ -252,43 +287,101 @@ const Educator = {
       })
     };
 
+    const hideAllSections = () => {
+      educatorDashboard.style.display = "none";
+      educatorAssignments.style.display = "none";
+      educatorClassrooms.style.display = "none";
+      studentDashboard.style.display = "none";
+      studentAssignments.style.display = "none";
+      studentClassrooms.style.display = "none";
+    }
+
+    const showDashboard = () => {
+      switch (activeUser) {
+        case users.STUDENT:
+          studentDashboard.style.display = "";
+        case users.EDUCATOR:
+          educatorDashboard.style.display = "";
+      }
+    }
+    const showAssignments = () => {
+      switch (activeUser) {
+        case users.STUDENT:
+          studentAssignments.style.display = "";
+        case users.EDUCATOR:
+          educatorAssignments.style.display = "";
+      }
+    }
+    const showClassrooms = () => {
+      switch (activeUser) {
+        case users.STUDENT:
+          studentClassrooms.style.display = "";
+        case users.EDUCATOR:
+          educatorClassrooms.style.display = "";
+      }
+    }
+
     const focusDashboard = () => {
       sectionHeader.innerText = "Dashboard";
       [...dashboardSidebar].forEach((el) => {
         el.classList.add("bg-gray-100");
+        el.classList.add("text-gray-900");
+        el.classList.remove("text-gray-600");
       });
       [...classroomSidebar].forEach((el) => {
         el.classList.remove("bg-gray-100");
+        el.classList.add("text-gray-600");
+        el.classList.remove("text-gray-900");
       });
       [...assignmentSidebar].forEach((el) => {
         el.classList.remove("bg-gray-100");
+        el.classList.add("text-gray-600");
+        el.classList.remove("text-gray-900");
       });
+      hideAllSections();
+      showDashboard();
     };
 
     const focusClassroom = () => {
       sectionHeader.innerText = "Classrooms";
       [...classroomSidebar].forEach((el) => {
         el.classList.add("bg-gray-100");
+        el.classList.add("text-gray-900");
+        el.classList.remove("text-gray-600");
       });
       [...dashboardSidebar].forEach((el) => {
         el.classList.remove("bg-gray-100");
+        el.classList.add("text-gray-600");
+        el.classList.remove("text-gray-900");
       });
       [...assignmentSidebar].forEach((el) => {
         el.classList.remove("bg-gray-100");
+        el.classList.add("text-gray-600");
+        el.classList.remove("text-gray-900");
       });
+      hideAllSections();
+      showClassrooms();
     };
 
     const focusAssignment = () => {
       sectionHeader.innerText = "Assignments";
       [...assignmentSidebar].forEach((el) => {
         el.classList.add("bg-gray-100");
+        el.classList.add("text-gray-900");
+        el.classList.remove("text-gray-600");
       });
       [...dashboardSidebar].forEach((el) => {
         el.classList.remove("bg-gray-100");
+        el.classList.add("text-gray-600");
+        el.classList.remove("text-gray-900");
       });
       [...classroomSidebar].forEach((el) => {
         el.classList.remove("bg-gray-100");
+        el.classList.add("text-gray-600");
+        el.classList.remove("text-gray-900");
       });
+      hideAllSections();
+      showAssignments();
     };
 
     // ------------ calls and logic and event listeners
@@ -322,10 +415,26 @@ const Educator = {
       })
     })
 
-    if (userData?.role === "educator") {
+    if (activeUser === users.EDUCATOR) {
       showEducatorBadges();
-    } else if (userData?.role === "student") {
+      switch(activeSection) {
+        case sections.DASHBOARD:
+          educatorDashboard.style.display = "";
+        case sections.ASSIGNMENTS:
+          educatorAssignments.style.display = "";
+        case sections.CLASSROOMS:
+          educatorAssignments.style.display = "";
+      }
+    } else if (activeUser === users.STUDENT) {
       showStudentBadges();
+      switch(activeSection) {
+        case sections.DASHBOARD:
+          studentDashboard.style.display = "";
+        case sections.ASSIGNMENTS:
+          studentAssignments.style.display = "";
+        case sections.CLASSROOMS:
+          studentAssignments.style.display = "";
+      }
     }
 
     // after_render of components loaded in the page

@@ -51,7 +51,7 @@ const Login = {
                     </div>
 
 
-                    <div id="error-container" class="rounded-md bg-red-50 my-4 p-4">
+                    <div id="error-container" style="display: none;" class="rounded-md bg-red-50 my-4 p-4">
                     <div class="flex">
                         <div id="close-error-btn" class="cursor-pointer flex-shrink-0">
                             <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
@@ -200,7 +200,7 @@ const Login = {
                     hideLoader();
                     console.debug("ID Token could not be fetched", err);
                     showErrorContainer();
-                    addError("ID Token could not be fetched")
+                    addError(err.message)
                 })
                 console.debug("user signed in")
                 // TODO:    

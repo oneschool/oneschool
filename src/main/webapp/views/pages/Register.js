@@ -238,7 +238,7 @@ const Register = {
                     hideLoader();
                     console.debug("ID Token could not be fetched", err);
                     showErrorContainer();
-                    addError("ID Token could not be fetched")
+                    addError(err.message)
                 })
 
                 // lazy async task to send verification mail
