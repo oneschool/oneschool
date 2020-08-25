@@ -123,8 +123,15 @@ const Register = {
         }
 
         const showLoader = () => {
-            
+            pageLoader.style.display = "";
+            pageRegister.style.display = "none";
         }
+
+        const hideLoader = () => {
+            pageLoader.style.display = "none";
+            pageRegister.style.display = "";
+        }
+
         const hideErrorContainer = () => {
             errorContainer.style.display = "none";
         }
@@ -135,7 +142,9 @@ const Register = {
             errorList.append(errorLi);
         }
 
-
+        const clearErrorList = () => {
+            errorList.innerHTML = "";
+        }
 
         const enableCreateAccountBtn = () => {
             createAccountBtn.removeAttribute("disabled");
@@ -185,7 +194,7 @@ const Register = {
         
         const registerUser = ({email, name, password, role}) => {
             showLoader();
-
+            clearErrorList();
             // firebase is only used for auth and nothing else
             auth.createUserWithEmailAndPassword(email, password).then(({user}) => {
                 // TODO: check back cred and update details on backend accordingly
@@ -215,10 +224,21 @@ const Register = {
                             console.debug("skadjhkasdh");
                             navigateToDashboard();
                             console.debug("dfaSF");
+                        }).catch((err) => {
+                            hideLoader();
+                            showErrorContainer();
+                            addError(err.message);
                         })
+                    }).catch((err) => {
+                        hideLoader();
+                        showErrorContainer();
+                        addError(err.message);
                     })
                 }).catch((err) => {
-
+                    hideLoader();
+                    console.debug("ID Token could not be fetched", err);
+                    showErrorContainer();
+                    addError("ID Token could not be fetched")
                 })
 
                 // lazy async task to send verification mail
@@ -231,8 +251,9 @@ const Register = {
                     })
                 }
             }).catch((err) => {
+                hideLoader();
                 showErrorContainer();
-                addError("Firebase could not be reached.");
+                addError(err.message);
                 console.debug("Sign Up Error", err);
             })
         }
