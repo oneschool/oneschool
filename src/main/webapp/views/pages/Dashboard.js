@@ -257,7 +257,7 @@ const Educator = {
       STUDENT: "student"
     }
     const activeUser = userData.role
-    const activeSection = sections.ASSIGNMENTS;
+    const activeSection = sections.DASHBOARD;
     const signOutBtn = document.querySelector("#sign-out-btn");
 
     // ----------- methods

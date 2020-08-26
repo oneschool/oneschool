@@ -1,5 +1,5 @@
 /* eslint-disable */
-let domain = 'http://127.0.0.1:8080/api/v1'
+let domain = '/api/v1'
 let axiosInstance = axios.create()
 export const getDomain = () => {
   return domain

@@ -12,10 +12,10 @@ import Utils from './utils/Utils.js'
 
 import { setDomain } from './osapi/OsApi.js';
 
-const server = "http://localhost:8080/api/v1"
+const server = "/api/v1"
 setDomain(server)
 
-// List of supported routes. Any url other than these routes will throw a 404 error
+
 // resource/identifier/verb
 const routes = {
     '/'              : Home
