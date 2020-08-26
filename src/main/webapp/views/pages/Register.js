@@ -278,9 +278,6 @@ const Register = {
             e.preventDefault();
             hideErrorContainer();
         })
-        
-        // showErrorContainer();
-        // addError("dsifjdfj");
 
     }
 }

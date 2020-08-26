@@ -3,6 +3,7 @@ import TheEducatorDashboard from "../components/TheEducatorDashboard.js";
 import TheStudentDashboard from "../components/TheStudentDashboard.js";
 import TheLoader from "../components/TheLoader.js";
 import TheEducatorClassroom from "../components/TheEducatorClassrooms.js";
+import TheEducatorAssignments from "../components/TheEducatorAssignments.js";
 
 const Educator = {
   render : async () => {
@@ -10,6 +11,8 @@ const Educator = {
       // of loaded components in after_render method of the page
       const EducatorDashboard = await TheEducatorDashboard.render();
       const EducatorClassrooms = await TheEducatorClassroom.render();
+      const EducatorAssignments = await TheEducatorAssignments.render();
+
       const StudentDashboard = await TheStudentDashboard.render();
       const Loader = await TheLoader.render();
 
@@ -199,6 +202,7 @@ const Educator = {
                       ${EducatorClassrooms}
                     </div>
                     <div id="educator-assigments" style="display: none;">
+                      ${EducatorAssignments}
                     </div>
                     <div id="student-dashboard" style="display: none;">
                     </div>
@@ -222,9 +226,12 @@ const Educator = {
     switch (userData.role) {
       case "student":
         await TheStudentDashboard.after_render();
+        break;
       case "educator":
         await TheEducatorDashboard.after_render();
         await TheEducatorClassroom.after_render();
+        await TheEducatorAssignments.after_render();
+        break;
     }
 
     // ----------- consts
@@ -250,7 +257,7 @@ const Educator = {
       STUDENT: "student"
     }
     const activeUser = userData.role
-    const activeSection = sections.CLASSROOMS;
+    const activeSection = sections.ASSIGNMENTS;
     const signOutBtn = document.querySelector("#sign-out-btn");
 
     // ----------- methods
@@ -288,24 +295,30 @@ const Educator = {
       switch (activeUser) {
         case users.STUDENT:
           studentDashboard.style.display = "";
+          break;
         case users.EDUCATOR:
           educatorDashboard.style.display = "";
+          break;
       }
     }
     const showAssignments = () => {
       switch (activeUser) {
         case users.STUDENT:
           studentAssignments.style.display = "";
+          break;
         case users.EDUCATOR:
           educatorAssignments.style.display = "";
+          break;
       }
     }
     const showClassrooms = () => {
       switch (activeUser) {
         case users.STUDENT:
           studentClassrooms.style.display = "";
+          break;
         case users.EDUCATOR:
           educatorClassrooms.style.display = "";
+          break;
       }
     }
 
@@ -409,12 +422,15 @@ const Educator = {
         case sections.DASHBOARD:
           focusDashboard();
           educatorDashboard.style.display = "";
+          break;
         case sections.ASSIGNMENTS:
           focusAssignment();
           educatorAssignments.style.display = "";
+          break;
         case sections.CLASSROOMS:
           focusClassroom();
           educatorAssignments.style.display = "";
+          break;
       }
     } else if (activeUser === users.STUDENT) {
       showStudentBadges();
@@ -422,12 +438,15 @@ const Educator = {
         case sections.DASHBOARD:
           focusDashboard();
           studentDashboard.style.display = "";
+          break;
         case sections.ASSIGNMENTS:
           focusAssignment();
           studentAssignments.style.display = "";
+          break;
         case sections.CLASSROOMS:
           focusClassroom();
           studentAssignments.style.display = "";
+          break;
       }
     }
 

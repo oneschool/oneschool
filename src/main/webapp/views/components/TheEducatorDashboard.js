@@ -81,7 +81,19 @@ const TheEducatorDashboard = {
                     xToken: token
                 }).then((resp) => {
                     console.debug(resp);
-                    resp.data.forEach(ass => {
+                    localStorage.setItem("assignments@os", JSON.stringify(resp.data));
+                    // TODO: flattening based on name, very stupid thing but doing it for demo
+                    // later change in api will be required
+                    const flattenAssigments = (ass) => {
+                        ass = ass.filter((as, index, self) => {
+                            return index === self.findIndex((t) => (
+                                t.name == as.name
+                            ))
+                        })
+                        console.debug(ass);
+                        return ass;
+                    }
+                    flattenAssigments(resp.data).forEach(ass => {
                         createAndAppendOngoingAssLi(ass);
                     });
                 }).catch((err) => {
