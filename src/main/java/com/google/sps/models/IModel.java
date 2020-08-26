@@ -12,6 +12,10 @@ public interface IModel {
     default IModel createFromJsonRequest(HttpServletRequest request) throws IOException {
         Gson gson = new Gson();
         BufferedReader bufferedReader = request.getReader();
-        return gson.fromJson(bufferedReader, this.getClass());
+        IModel model = gson.fromJson(bufferedReader, this.getClass());
+        if (model == null) {
+            return this;
+        }
+        return model;
     }
 }

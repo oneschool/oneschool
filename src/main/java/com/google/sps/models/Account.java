@@ -65,6 +65,7 @@ public class Account implements IModel {
     // will help in queries
     public static class Keys {
         public static String COLLECTION = "account";
+        public static String ID = "id";
         public static String NAME = "name";
         public static String EMAIL = "email";
         public static String FIREBASE_UID = "firebaseUid";

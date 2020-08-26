@@ -4,11 +4,14 @@ import com.google.api.core.ApiFuture;
 import com.google.cloud.firestore.*;
 import com.google.firebase.cloud.FirestoreClient;
 import com.google.sps.models.Account;
+import com.google.sps.models.Classroom;
+import com.google.sps.models.ClassroomStudent;
 import com.google.sps.utils.validation.ValidationErrors;
 import com.google.sps.utils.validation.ValidationResponse;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -113,5 +116,53 @@ public class AccountDao implements IAccountDao {
             return account;
         }
         return null;
+    }
+
+    @Override
+    @SneakyThrows
+    public Account getAccountById(String id) {
+        ApiFuture<QuerySnapshot> future = db.collection(Account.Keys.COLLECTION)
+                .whereEqualTo(Account.Keys.ID, id).get();
+        List<QueryDocumentSnapshot> documents = future.get().getDocuments();
+        Account account = null;
+        for (DocumentSnapshot document : documents) {
+            account = document.toObject(Account.class);
+            account.setId(document.getId());
+            log.info(account.toString());
+            return account;
+        }
+        return null;
+    }
+
+    @Override
+    public List<Account> getAllStudentsInClassroom(String classroomId) {
+        List<ClassroomStudent> classroomStudents = new ClassroomStudentDao().getStudentsForClassroom(classroomId);
+
+        List<Account> students = new ArrayList<>();
+
+        for (ClassroomStudent classroomStudent: classroomStudents) {
+            String studentId = classroomStudent.getStudentId();
+            students.add(getAccountById(studentId));
+        }
+        return students;
+    }
+
+    @Override
+    @SneakyThrows
+    public List<Account> getAllStudents() {
+        ApiFuture<QuerySnapshot> future = db.collection(Account.Keys.COLLECTION)
+                .whereEqualTo(Account.Keys.ROLE, "student").get();
+
+        List<QueryDocumentSnapshot> documents = future.get().getDocuments();
+
+
+        List<Account> students = new ArrayList<>();
+
+        for (DocumentSnapshot document: documents) {
+            Account currentStudent = document.toObject(Account.class);
+            currentStudent.setId(document.getId());
+            students.add(currentStudent);
+        }
+        return students;
     }
 }
