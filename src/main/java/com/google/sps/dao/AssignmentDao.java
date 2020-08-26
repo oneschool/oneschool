@@ -8,6 +8,7 @@ import com.google.sps.models.*;
 import com.google.sps.utils.validation.ValidationErrors;
 import com.google.sps.utils.validation.ValidationResponse;
 import com.google.sps.utils.validation.ValidationUtils;
+import com.google.sps.utils.validation.ErrorMessage;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
@@ -101,9 +102,17 @@ public class AssignmentDao implements  IAssignmentDao {
 
         ValidationResponse.Builder validationResponseBuilder = null;
 
-        Assignment oldAssignment = getAssignmentById(newAssignment.getId());
-        newAssignment.setId(oldAssignment.getId());
-        newAssignment.setUpdated(System.currentTimeMillis());
+        if (ValidationUtils.isEmptyOrWhiteSpace(newAssignment.getId())) {
+            validationResponseBuilder = ValidationResponse.builder();
+            validationResponseBuilder.status(ValidationErrors.STATUS_NOT_OK);
+            validationResponseBuilder.message(ValidationErrors.MESSAGE_NOT_OK);
+
+            validationResponseBuilder.error(
+                    ValidationErrors.isEmptyOrWhiteSpace("id")
+            );
+
+            return validationResponseBuilder.build();
+        }
 
         if (ValidationUtils.isEmptyOrWhiteSpace(newAssignment.getSolution())) {
             validationResponseBuilder = ValidationResponse.builder();
@@ -113,24 +122,20 @@ public class AssignmentDao implements  IAssignmentDao {
             validationResponseBuilder.error(
                     ValidationErrors.isEmptyOrWhiteSpace(Assignment.Keys.SOLUTION)
             );
+
+            return validationResponseBuilder.build();
         }
 
+        Assignment oldAssignment = getAssignmentById(newAssignment.getId());
+
+        oldAssignment.setUpdated(System.currentTimeMillis());
         //do not set scored_marks attribute
         //solution attribute is set from the request
-        newAssignment.setCreated(oldAssignment.getCreated());
-        newAssignment.setAssignmentId(oldAssignment.getAssignmentId());
-        newAssignment.setClassroomId(oldAssignment.getClassroomId());
-        newAssignment.setEducatorId(oldAssignment.getEducatorId());
-        newAssignment.setDeadline(oldAssignment.getDeadline());
-        newAssignment.setTotal_marks(oldAssignment.getTotal_marks());
-        newAssignment.setName(oldAssignment.getName());
-        newAssignment.setDescription(oldAssignment.getDescription());
-
-        //Set attribute submitted to true
-        newAssignment.setSubmitted(true);
+        oldAssignment.setSolution(newAssignment.getSolution());
+        oldAssignment.setSubmitted(true);
 
         ApiFuture<WriteResult> writeResult = db.collection(Assignment.Keys.COLLECTION)
-                .document(newAssignment.getId()).set(newAssignment);
+                .document(oldAssignment.getId()).set(oldAssignment);
 
         log.info("Update assignment called: " + writeResult.get().toString());
 
@@ -147,35 +152,39 @@ public class AssignmentDao implements  IAssignmentDao {
 
         ValidationResponse.Builder validationResponseBuilder = null;
 
+        if (ValidationUtils.isEmptyOrWhiteSpace(newAssignment.getId())) {
+            validationResponseBuilder = ValidationResponse.builder();
+            validationResponseBuilder.status(ValidationErrors.STATUS_NOT_OK);
+            validationResponseBuilder.message(ValidationErrors.MESSAGE_NOT_OK);
+
+            validationResponseBuilder.error(
+                    ValidationErrors.isEmptyOrWhiteSpace("id")
+            );
+
+            return validationResponseBuilder.build();
+        }
+
         Assignment oldAssignment = getAssignmentById(newAssignment.getId());
-        newAssignment.setId(oldAssignment.getId());
-        newAssignment.setUpdated(System.currentTimeMillis());
 
         if(newAssignment.getScored_marks() < 0 || newAssignment.getScored_marks() > oldAssignment.getTotal_marks()){
             validationResponseBuilder = ValidationResponse.builder();
             validationResponseBuilder.status(ValidationErrors.STATUS_NOT_OK);
             validationResponseBuilder.message(ValidationErrors.MESSAGE_NOT_OK);
+
+            ErrorMessage errorMessage = new ErrorMessage("scored_marks", "scored_marks can not be less than zero or greater than total marks");
+            validationResponseBuilder.error(errorMessage);
+
             return validationResponseBuilder.build();
         }
 
         //scored_marks attribute is set from the request
-        newAssignment.setCreated(oldAssignment.getCreated());
-        newAssignment.setAssignmentId(oldAssignment.getAssignmentId());
-        newAssignment.setClassroomId(oldAssignment.getClassroomId());
-        newAssignment.setEducatorId(oldAssignment.getEducatorId());
-        newAssignment.setDeadline(oldAssignment.getDeadline());
-        newAssignment.setTotal_marks(oldAssignment.getTotal_marks());
-        newAssignment.setName(oldAssignment.getName());
-        newAssignment.setDescription(oldAssignment.getDescription());
         //Solution is submitted
-        newAssignment.setSolution(oldAssignment.getSolution());
-        newAssignment.setSubmitted(oldAssignment.isSubmitted());
-
-        //Set attribute checked to true
-        newAssignment.setChecked(true);
+        oldAssignment.setUpdated(System.currentTimeMillis());
+        oldAssignment.setScored_marks(newAssignment.getScored_marks());
+        oldAssignment.setChecked(true);
 
         ApiFuture<WriteResult> writeResult = db.collection(Assignment.Keys.COLLECTION)
-                .document(newAssignment.getId()).set(newAssignment);
+                .document(oldAssignment.getId()).set(oldAssignment);
 
         log.info("Update assignment called: " + writeResult.get().toString());
 
