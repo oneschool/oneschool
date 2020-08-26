@@ -88,4 +88,39 @@ public class AssignmentServlet extends HttpServlet {
         }
         resp.getWriter().println(gson.toJson(validationResponse));
     }
+
+    @Override
+    protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        Assignment assignment = (Assignment) new Assignment().createFromJsonRequest(req);
+
+        String firebaseUid = req.getHeader("X-Firebase-Uid");
+
+        if (firebaseUid == null) {
+            resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            return;
+        }
+        Account account = accountDao.getAccount(firebaseUid);
+
+        if (account == null) {
+            resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
+            return;
+        }
+
+        ValidationResponse validationResponse = null;
+
+        if(account.getRole().equals("student")) {
+            validationResponse = assignmentDao.updateAssignmentForStudent(assignment);
+        }
+        else {
+            validationResponse = assignmentDao.updateAssignmentForEducator(assignment);
+        }
+
+        resp.setContentType(ServletUtils.CONTENT_TYPE_JSON);
+        if (validationResponse.getStatus() == ValidationErrors.STATUS_OK) {
+            resp.setStatus(HttpServletResponse.SC_CREATED);
+        } else {
+            resp.setStatus(HttpServletResponse.SC_OK);
+        }
+        resp.getWriter().println(gson.toJson(validationResponse));
+    }
 }
