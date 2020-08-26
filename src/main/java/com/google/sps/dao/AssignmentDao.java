@@ -114,38 +114,17 @@ public class AssignmentDao implements  IAssignmentDao {
                     ValidationErrors.isEmptyOrWhiteSpace(Assignment.Keys.SOLUTION)
             );
         }
-        // weird not null is zero but
-        if (newAssignment.getCreated() == 0) {
-            newAssignment.setCreated(oldAssignment.getCreated());
-        }
 
-        if (newAssignment.getAssignmentId() == null) {
-            newAssignment.setAssignmentId(oldAssignment.getAssignmentId());
-        }
-
-        if (newAssignment.getClassroomId() == null) {
-            newAssignment.setClassroomId(oldAssignment.getClassroomId());
-        }
-
-        if (newAssignment.getEducatorId() == null) {
-            newAssignment.setEducatorId(oldAssignment.getEducatorId());
-        }
-
-        if (newAssignment.getDeadline() == 0) {
-            newAssignment.setDeadline(oldAssignment.getDeadline());
-        }
-
-        if (newAssignment.getTotal_marks() == 0) {
-            newAssignment.setTotal_marks(oldAssignment.getTotal_marks());
-        }
-
-        if (newAssignment.getName() == null) {
-            newAssignment.setName(oldAssignment.getName());
-        }
-
-        if (newAssignment.getDescription() == null) {
-            newAssignment.setDescription(oldAssignment.getDescription());
-        }
+        //do not set scored_marks attribute
+        //solution attribute is set from the request
+        newAssignment.setCreated(oldAssignment.getCreated());
+        newAssignment.setAssignmentId(oldAssignment.getAssignmentId());
+        newAssignment.setClassroomId(oldAssignment.getClassroomId());
+        newAssignment.setEducatorId(oldAssignment.getEducatorId());
+        newAssignment.setDeadline(oldAssignment.getDeadline());
+        newAssignment.setTotal_marks(oldAssignment.getTotal_marks());
+        newAssignment.setName(oldAssignment.getName());
+        newAssignment.setDescription(oldAssignment.getDescription());
 
         //Set attribute submitted to true
         newAssignment.setSubmitted(true);
@@ -179,42 +158,18 @@ public class AssignmentDao implements  IAssignmentDao {
             return validationResponseBuilder.build();
         }
 
-        // weird not null is zero but
-        if (newAssignment.getCreated() == 0) {
-            newAssignment.setCreated(oldAssignment.getCreated());
-        }
-
-        if (newAssignment.getAssignmentId() == null) {
-            newAssignment.setAssignmentId(oldAssignment.getAssignmentId());
-        }
-
-        if (newAssignment.getClassroomId() == null) {
-            newAssignment.setClassroomId(oldAssignment.getClassroomId());
-        }
-
-        if (newAssignment.getEducatorId() == null) {
-            newAssignment.setEducatorId(oldAssignment.getEducatorId());
-        }
-
-        if (newAssignment.getDeadline() == 0) {
-            newAssignment.setDeadline(oldAssignment.getDeadline());
-        }
-
-        if (newAssignment.getTotal_marks() == 0) {
-            newAssignment.setTotal_marks(oldAssignment.getTotal_marks());
-        }
-
-        if (newAssignment.getName() == null) {
-            newAssignment.setName(oldAssignment.getName());
-        }
-
-        if (newAssignment.getDescription() == null) {
-            newAssignment.setDescription(oldAssignment.getDescription());
-        }
-
-        if (!newAssignment.isSubmitted()) {
-            newAssignment.setSubmitted(oldAssignment.isSubmitted());
-        }
+        //scored_marks attribute is set from the request
+        newAssignment.setCreated(oldAssignment.getCreated());
+        newAssignment.setAssignmentId(oldAssignment.getAssignmentId());
+        newAssignment.setClassroomId(oldAssignment.getClassroomId());
+        newAssignment.setEducatorId(oldAssignment.getEducatorId());
+        newAssignment.setDeadline(oldAssignment.getDeadline());
+        newAssignment.setTotal_marks(oldAssignment.getTotal_marks());
+        newAssignment.setName(oldAssignment.getName());
+        newAssignment.setDescription(oldAssignment.getDescription());
+        //Solution is submitted
+        newAssignment.setSolution(oldAssignment.getSolution());
+        newAssignment.setSubmitted(oldAssignment.isSubmitted());
 
         //Set attribute checked to true
         newAssignment.setChecked(true);
