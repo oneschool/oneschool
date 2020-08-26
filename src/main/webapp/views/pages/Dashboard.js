@@ -2,12 +2,14 @@ import Utils from "../../utils/Utils.js";
 import TheEducatorDashboard from "../components/TheEducatorDashboard.js";
 import TheStudentDashboard from "../components/TheStudentDashboard.js";
 import TheLoader from "../components/TheLoader.js";
+import TheEducatorClassroom from "../components/TheEducatorClassrooms.js";
 
 const Educator = {
   render : async () => {
       // Always remember to run all the after_render functions 
       // of loaded components in after_render method of the page
       const EducatorDashboard = await TheEducatorDashboard.render();
+      const EducatorClassrooms = await TheEducatorClassroom.render();
       const StudentDashboard = await TheStudentDashboard.render();
       const Loader = await TheLoader.render();
 
@@ -16,16 +18,6 @@ const Educator = {
           <!-- Off-canvas menu for mobile -->
           <div x-show="sideBarOpen" class="md:hidden">
             <div class="fixed inset-0 flex z-40">
-              <!--
-                Off-canvas menu overlay, show/hide based on off-canvas menu state.
-        
-                Entering: "transition-opacity ease-linear duration-300"
-                  From: "opacity-0"
-                  To: "opacity-100"
-                Leaving: "transition-opacity ease-linear duration-300"
-                  From: "opacity-100"
-                  To: "opacity-0"
-              -->
               <div 
                 @click="sideBarOpen = false"
                 x-show="sideBarOpen" 
@@ -38,16 +30,6 @@ const Educator = {
                 class="fixed inset-0">
                 <div class="absolute inset-0 bg-gray-600 opacity-75"></div>
               </div>
-              <!--
-                Off-canvas menu, show/hide based on off-canvas menu state.
-        
-                Entering: "transition ease-in-out duration-300 transform"
-                  From: "-translate-x-full"
-                  To: "translate-x-0"
-                Leaving: "transition ease-in-out duration-300 transform"
-                  From: "translate-x-0"
-                  To: "-translate-x-full"
-              -->
               <div 
                 x-show="sideBarOpen" 
                 x-transition:enter="transition ease-in-out duration-300 transform"
@@ -174,14 +156,14 @@ const Educator = {
                 <div class="ml-4 flex items-center md:ml-6">
         
                   <!-- Profile dropdown -->
-                  <div @click.away="open = false" class="ml-3 relative" x-data="{ open: false }">
+                  <div @click.away="openProfileDropDown = false" class="ml-3 relative" x-data="{ openProfileDropDown: false }">
                     <div>
-                      <button @click="open = !open" class="max-w-xs flex items-center text-sm rounded-full focus:outline-none focus:shadow-outline" id="user-menu" aria-label="User menu" aria-haspopup="true">
-                        <img class="h-8 w-8 rounded-full" src="https://karngyan.com/assets/images/profile.jpg" alt="">
+                      <button @click="openProfileDropDown = !openProfileDropDown" class="max-w-xs flex items-center text-sm rounded-full focus:outline-none focus:shadow-outline" id="user-menu" aria-label="User menu" aria-haspopup="true">
+                        <img class="h-8 w-8 rounded-full" src="img/user.svg" alt="">
                       </button>
                     </div>
                     <div 
-                      x-show="open" 
+                      x-show="openProfileDropDown" 
                       x-description="Profile dropdown panel, show/hide based on dropdown state." 
                       x-transition:enter="transition ease-out duration-100" 
                       x-transition:enter-start="transform opacity-0 scale-95" 
@@ -214,6 +196,7 @@ const Educator = {
                       ${EducatorDashboard}
                     </div>
                     <div id="educator-classrooms" style="display: none;">
+                      ${EducatorClassrooms}
                     </div>
                     <div id="educator-assigments" style="display: none;">
                     </div>
@@ -235,11 +218,16 @@ const Educator = {
   },
   after_render: async () => {
     await TheLoader.after_render();
-    await TheEducatorDashboard.after_render();
-    await TheStudentDashboard.after_render();
+    const userData = JSON.parse(localStorage.getItem("user@os"));
+    switch (userData.role) {
+      case "student":
+        await TheStudentDashboard.after_render();
+      case "educator":
+        await TheEducatorDashboard.after_render();
+        await TheEducatorClassroom.after_render();
+    }
 
     // ----------- consts
-    const userData = JSON.parse(localStorage.getItem("user@os"));
     const educatorBadges = document.getElementsByClassName("educator-badge");
     const studentBadges = document.getElementsByClassName("student-badge");
     const dashboardSidebar = document.getElementsByClassName("dashboard");
@@ -262,7 +250,7 @@ const Educator = {
       STUDENT: "student"
     }
     const activeUser = userData.role
-    const activeSection = sections.DASHBOARD;
+    const activeSection = sections.CLASSROOMS;
     const signOutBtn = document.querySelector("#sign-out-btn");
 
     // ----------- methods
@@ -419,20 +407,26 @@ const Educator = {
       showEducatorBadges();
       switch(activeSection) {
         case sections.DASHBOARD:
+          focusDashboard();
           educatorDashboard.style.display = "";
         case sections.ASSIGNMENTS:
+          focusAssignment();
           educatorAssignments.style.display = "";
         case sections.CLASSROOMS:
+          focusClassroom();
           educatorAssignments.style.display = "";
       }
     } else if (activeUser === users.STUDENT) {
       showStudentBadges();
       switch(activeSection) {
         case sections.DASHBOARD:
+          focusDashboard();
           studentDashboard.style.display = "";
         case sections.ASSIGNMENTS:
+          focusAssignment();
           studentAssignments.style.display = "";
         case sections.CLASSROOMS:
+          focusClassroom();
           studentAssignments.style.display = "";
       }
     }

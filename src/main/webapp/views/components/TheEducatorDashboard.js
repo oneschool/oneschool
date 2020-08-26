@@ -84,6 +84,8 @@ const TheEducatorDashboard = {
                     resp.data.forEach(ass => {
                         createAndAppendOngoingAssLi(ass);
                     });
+                }).catch((err) => {
+                    console.debug(err.message);
                 })
             }).catch((err) => {
                 console.debug(err.message);

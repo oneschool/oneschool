@@ -239,7 +239,7 @@ export const getClassroomURL = function(parameters = {}) {
  * method: postClassroom_TYPE
  * raw_url: postClassroom_RAW_URL
  * @param xToken - ID Token by Firebase
- * @param account - 
+ * @param classroom - 
  */
 export const postClassroom = function(parameters = {}) {
   const domain = parameters.$domain ? parameters.$domain : getDomain()
@@ -256,8 +256,8 @@ export const postClassroom = function(parameters = {}) {
   if (parameters['xToken'] === undefined) {
     return Promise.reject(new Error('Missing required  parameter: xToken'))
   }
-  if (parameters['account'] !== undefined) {
-    body = parameters['account']
+  if (parameters['classroom'] !== undefined) {
+    body = parameters['classroom']
   }
   if (parameters.$queryParameters) {
     Object.keys(parameters.$queryParameters).forEach(function(parameterName) {
@@ -339,7 +339,7 @@ export const getAssignmentURL = function(parameters = {}) {
  * method: postAssignment_TYPE
  * raw_url: postAssignment_RAW_URL
  * @param xToken - ID Token by Firebase
- * @param account - 
+ * @param assignment - 
  */
 export const postAssignment = function(parameters = {}) {
   const domain = parameters.$domain ? parameters.$domain : getDomain()
@@ -356,8 +356,8 @@ export const postAssignment = function(parameters = {}) {
   if (parameters['xToken'] === undefined) {
     return Promise.reject(new Error('Missing required  parameter: xToken'))
   }
-  if (parameters['account'] !== undefined) {
-    body = parameters['account']
+  if (parameters['assignment'] !== undefined) {
+    body = parameters['assignment']
   }
   if (parameters.$queryParameters) {
     Object.keys(parameters.$queryParameters).forEach(function(parameterName) {
@@ -376,6 +376,58 @@ export const postAssignmentURL = function(parameters = {}) {
   let queryParameters = {}
   const domain = parameters.$domain ? parameters.$domain : getDomain()
   let path = '/assignment'
+  if (parameters.$queryParameters) {
+    Object.keys(parameters.$queryParameters).forEach(function(parameterName) {
+      queryParameters[parameterName] = parameters.$queryParameters[parameterName]
+    })
+  }
+  let keys = Object.keys(queryParameters)
+  return domain + path + (keys.length > 0 ? '?' + (keys.map(key => key + '=' + encodeURIComponent(queryParameters[key])).join('&')) : '')
+}
+/**
+ * Create classroom student
+ * request: postClassroomAddStudents
+ * url: postClassroomAddStudentsURL
+ * method: postClassroomAddStudents_TYPE
+ * raw_url: postClassroomAddStudents_RAW_URL
+ * @param xToken - ID Token by Firebase
+ * @param classroomStudent - 
+ */
+export const postClassroomAddStudents = function(parameters = {}) {
+  const domain = parameters.$domain ? parameters.$domain : getDomain()
+  const config = parameters.$config || {
+    headers: {}
+  }
+  let path = '/classroom/addStudents'
+  let body
+  let queryParameters = {}
+  let form = {}
+  if (parameters['xToken'] !== undefined) {
+    config.headers['X-Token'] = parameters['xToken']
+  }
+  if (parameters['xToken'] === undefined) {
+    return Promise.reject(new Error('Missing required  parameter: xToken'))
+  }
+  if (parameters['classroomStudent'] !== undefined) {
+    body = parameters['classroomStudent']
+  }
+  if (parameters.$queryParameters) {
+    Object.keys(parameters.$queryParameters).forEach(function(parameterName) {
+      queryParameters[parameterName] = parameters.$queryParameters[parameterName]
+    });
+  }
+  return request('post', domain + path, body, queryParameters, form, config)
+}
+export const postClassroomAddStudents_RAW_URL = function() {
+  return '/classroom/addStudents'
+}
+export const postClassroomAddStudents_TYPE = function() {
+  return 'post'
+}
+export const postClassroomAddStudentsURL = function(parameters = {}) {
+  let queryParameters = {}
+  const domain = parameters.$domain ? parameters.$domain : getDomain()
+  let path = '/classroom/addStudents'
   if (parameters.$queryParameters) {
     Object.keys(parameters.$queryParameters).forEach(function(parameterName) {
       queryParameters[parameterName] = parameters.$queryParameters[parameterName]
