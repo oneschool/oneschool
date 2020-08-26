@@ -20,6 +20,8 @@ import java.io.IOException;
 @NoArgsConstructor
 public class Assignment implements IModel {
     private String id;
+    private String assignmentId;
+    private boolean checked;
     private String classroomId;
     private String name;
     private String description;
