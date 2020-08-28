@@ -1,3 +1,5 @@
+# Credits: Tanya Sikarwar
+# Thanks Friend
 swagger: '2.0'
 info:
   title: OneSchool API
@@ -75,6 +77,32 @@ paths:
           description: Account updation success
         401:
           description: Unauthorized
+          
+  /classroom/students:
+    get:
+      tags:
+        - student
+      description: Get Student Details
+      parameters:
+        - in: header
+          name: X-Token
+          description: ID Token by Firebase
+          required: true
+          type: string
+        - in: body
+          name: ClassroomId
+          schema:
+            $ref: '#/definitions/models.ClassroomId'
+          
+      responses:
+        200:
+          description: Student details fetch success
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/models.Account'
+        401:
+          description: Unauthorized
 
   /classroom:
     get:
@@ -150,6 +178,27 @@ paths:
           name: assignment
           schema:
             $ref: '#/definitions/models.EAssignment'
+      responses:
+        201:
+          description: Assignment creation success
+        401:
+          description: Unauthorized
+          
+    put:
+      tags:
+        - assignment
+      description: Update assignment
+      parameters:
+        - in: header
+          name: X-Token
+          description: ID Token by Firebase
+          required: true
+          type: string
+        - in: body
+          name: assignment
+          schema:
+            $ref: '#/definitions/models.AssignmentUpdate'
+            
       responses:
         201:
           description: Assignment creation success
@@ -275,7 +324,7 @@ definitions:
       id:
         type: string
         example: "YGULkWRY4uGMShFvAYtk34s1"
-      assignmnetId:
+      assignmentId:
         type: string
         example: "YGULkWRY4uGMShFvAYtk34s1"
       name:
@@ -366,3 +415,24 @@ definitions:
             studentId:
               type: string
               example: "YGULkWRY4uGMShFvAYtk34s1"
+  
+  models.AssignmentUpdate:
+    type: object
+    properties:
+      id:
+        type: string
+        example: "YGULkWRY4uGMShFvAYtk34s1"
+      solution:
+        type: string
+        example: "Student solution for assignment"
+      scored_marks:
+        type: number
+        example: 0
+  
+  models.ClassroomId:
+    type: object
+    properties:
+      classroomId:
+        type: string
+        example: "YGULkWRY4uGMShFvAYtk34s1"
+  

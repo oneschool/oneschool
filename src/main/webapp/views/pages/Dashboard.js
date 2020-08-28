@@ -4,6 +4,8 @@ import TheStudentDashboard from "../components/TheStudentDashboard.js";
 import TheLoader from "../components/TheLoader.js";
 import TheEducatorClassroom from "../components/TheEducatorClassrooms.js";
 import TheEducatorAssignments from "../components/TheEducatorAssignments.js";
+import TheStudentClassrooms from "../components/TheStudentClassrooms.js";
+import TheStudentAssignments from "../components/TheStudentAssignments.js";
 
 const Educator = {
   render : async () => {
@@ -14,6 +16,9 @@ const Educator = {
       const EducatorAssignments = await TheEducatorAssignments.render();
 
       const StudentDashboard = await TheStudentDashboard.render();
+      const StudentClassrooms = await TheStudentClassrooms.render();
+      const StudentAssignments = await TheStudentAssignments.render();
+
       const Loader = await TheLoader.render();
 
       const view =  /*html*/`
@@ -205,10 +210,13 @@ const Educator = {
                       ${EducatorAssignments}
                     </div>
                     <div id="student-dashboard" style="display: none;">
+                      ${StudentDashboard}
                     </div>
                     <div id="student-classrooms" style="display: none;">
+                      ${StudentClassrooms}
                     </div>
                     <div id="student-assigments" style="display: none;">
+                      ${StudentAssignments}
                     </div>
                   </div>
                   <!-- /End replace -->
@@ -226,6 +234,8 @@ const Educator = {
     switch (userData.role) {
       case "student":
         await TheStudentDashboard.after_render();
+        await TheStudentClassrooms.after_render();
+        await TheStudentAssignments.after_render();
         break;
       case "educator":
         await TheEducatorDashboard.after_render();
@@ -429,7 +439,7 @@ const Educator = {
           break;
         case sections.CLASSROOMS:
           focusClassroom();
-          educatorAssignments.style.display = "";
+          educatorClassrooms.style.display = "";
           break;
       }
     } else if (activeUser === users.STUDENT) {
@@ -445,7 +455,7 @@ const Educator = {
           break;
         case sections.CLASSROOMS:
           focusClassroom();
-          studentAssignments.style.display = "";
+          studentClassrooms.style.display = "";
           break;
       }
     }

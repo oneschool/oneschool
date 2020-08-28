@@ -82,12 +82,10 @@ const TheEducatorDashboard = {
                 }).then((resp) => {
                     console.debug(resp);
                     localStorage.setItem("assignments@os", JSON.stringify(resp.data));
-                    // TODO: flattening based on name, very stupid thing but doing it for demo
-                    // later change in api will be required
                     const flattenAssigments = (ass) => {
                         ass = ass.filter((as, index, self) => {
                             return index === self.findIndex((t) => (
-                                t.name == as.name
+                                t.assignmentId == as.assignmentId
                             ))
                         })
                         console.debug(ass);

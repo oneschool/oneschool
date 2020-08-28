@@ -1,4 +1,4 @@
-import { getClassroom, postClassroom } from "../../osapi/OsApi.js"
+import { getClassroom, getClassroomStudents , postClassroom, postClassroomAddStudents } from "../../osapi/OsApi.js"
 import TheLoader from "./TheLoader.js"
 
 const TheEducatorClassrooms = {
@@ -53,7 +53,7 @@ const TheEducatorClassrooms = {
         </div>
       </div>
       <!-- form begin -->
-      <form id="newclassroom-form" style="display: none;">
+      <form id="newclassroom-form"  style="display: none;">
         <div>
           <div>
             <div class="mt-6 grid grid-cols-1 row-gap-6 col-gap-4 sm:grid-cols-6">
@@ -78,6 +78,25 @@ const TheEducatorClassrooms = {
             </div>
           </div>
         </div>
+
+        <div class="mt-4" id="newclassroom-selected-students">
+        </div>
+
+        <!-- Add student to list section -->
+        <div class="sm:col-span-6 mt-6">
+          <div class="flex justify-between">
+            <label for="new-student-classroom" class="block text-sm font-medium leading-5 text-gray-700">Add students to classroom</label>
+          </div>
+          <div class="mt-1 relative rounded-md shadow-sm">
+            <input id="new-student-classroom" class="form-input block w-full sm:text-sm sm:leading-5" placeholder="Search name or email" aria-describedby="email-optional">
+          </div>
+          <p class="mt-2 text-sm text-gray-500">Click on any student's card to add.</p>
+        </div>
+
+        <ul id="newclassroom-students-in-view" class="cursor-pointer grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 mt-4">
+        </ul>
+
+
         <div class="mt-8 border-t border-gray-200 pt-5">
           <div class="flex justify-end">
             <span class="inline-flex rounded-md shadow-sm">
@@ -112,6 +131,9 @@ const TheEducatorClassrooms = {
     const createNewClassRoomBtn = document.querySelector("#create-new-cr-btn");
     const newCRName = document.querySelector("#new-cr-name");
     const newCRDesc = document.querySelector("#new-cr-desc");
+    const newStudentSearchInput = document.querySelector("#new-student-classroom");
+    const selectedStudentsDiv = document.querySelector("#newclassroom-selected-students");
+    const studentsInView = document.querySelector("#newclassroom-students-in-view");
 
     const createAndAppendClassroomTr = ({name, created}, even) => {
         const creationDate = new Date(created);
@@ -128,8 +150,33 @@ const TheEducatorClassrooms = {
         newTRow.classList.add(even ? "bg-gray-50" : "bg-white");
         newTRow.innerHTML = row;
         classRoomTBody.append(newTRow);
-
     }
+
+    const getClosestParent = (elem, selector) => {
+      let count = 0;
+      for ( ; elem && elem !== document; elem = elem.parentNode ) {
+        if ( elem.matches( selector ) ) return elem;
+        count++;
+        if (count > 5) return null;
+      }
+      return null;
+    }
+
+    const getClassroomStudentObjectArray = (classroomId) => {
+      const arr = []
+      const spans = selectedStudentsDiv.getElementsByTagName("span");
+      for (const span of spans) {
+        const id = span.getAttribute("id");
+        if (id !== null) {
+          arr.push({
+            classroomId: classroomId,
+            studentId: id
+          });
+        }
+      }
+      return arr;
+    }
+
     const hideClassRoomList = () => {
       classRoomList.style.display = "none";
     }
@@ -152,6 +199,11 @@ const TheEducatorClassrooms = {
       sectionCR.style.display = "none";
     }
 
+    const hideLoader = () => {
+      pageLoader.style.display = "none";
+      sectionCR.style.display = "";
+    }
+
     const createClassroom  = ({name, description}) => {
       
       showLoader();
@@ -167,8 +219,32 @@ const TheEducatorClassrooms = {
                     description: description
                   }
                 }).then((resp) => {
-                  location.reload();
                   console.debug(resp);
+                  // hack from backend
+                  const classroomId = resp.data.message;
+                  const classroomStudents = getClassroomStudentObjectArray(classroomId);
+                  if (classroomStudents.length === 0) {
+                    hideNewClassRoomForm();
+                    fetchClassrooms();
+                    hideLoader();
+                    showClassRoomList();
+                    return;
+                  }
+                  postClassroomAddStudents({
+                    xToken: token,
+                    classroomStudents: {
+                      classroomStudents: classroomStudents
+                    }
+                  }).then((resp) => {
+                    console.debug(resp.data);
+                    hideNewClassRoomForm();
+                    fetchClassrooms();
+                    hideLoader();
+                    showClassRoomList();
+                  }).catch((err) => {
+                    console.debug(err.message);
+                    console.debug("class addedd, but student addition to class failed");
+                  })
                 }).catch((err) => {
                   console.debug("Class add failed");
                   console.debug(err.message);
@@ -189,28 +265,131 @@ const TheEducatorClassrooms = {
         createClassroom({name, description});
       }
     }
+
+    const clearStudentsInView = () => {
+      studentsInView.innerHTML = "";
+    }
+
+    const searchStudentAndAddToView = (searchTerm) => {
+      const students = JSON.parse(localStorage.getItem("students@os"));
+
+      const filteredStudents = students.filter((student) => {
+        const name = student.name.toLowerCase();
+        const email = student.email.toLowerCase();
+        const searchTermLowerCase = searchTerm.toLowerCase();
+  
+        return (
+          name.indexOf(searchTermLowerCase) > -1 ||
+          email.indexOf(searchTermLowerCase) > -1
+        );
+      });
+      clearStudentsInView();
+      filteredStudents.forEach((student) => {
+        addStudentToInViewList(student);
+      })
+    }
+
+    const addStudentToSelectedDiv = (element) => {
+      
+      const childSpans = selectedStudentsDiv.getElementsByTagName("span");
+      const id = element.getAttribute("id");
+
+      // already present i.e. selected
+      for (const childSpan of childSpans) {
+        if (childSpan.getAttribute("id") === id) {
+          return;
+        }
+      }
+      
+
+      const name = element.getAttribute("name");
+      const span = document.createElement("span");
+      span.setAttribute("selected", true);
+      span.setAttribute("id", id);
+      span.setAttribute("class", "inline-flex items-center px-3 py-0.5 rounded-full text-sm font-medium leading-5 bg-indigo-100 text-indigo-800")
+      span.innerHTML = `${name}
+      <button type="button" class="flex-shrink-0 -mr-0.5 ml-1.5 inline-flex text-indigo-500 focus:outline-none focus:text-indigo-700" aria-label="Remove large badge">
+        <svg class="h-2 w-2" stroke="currentColor" fill="none" viewBox="0 0 8 8">
+          <path stroke-linecap="round" stroke-width="1.5" d="M1 1l6 6m0-6L1 7" />
+        </svg>
+      </button>
+      `
+      selectedStudentsDiv.append(span);
+    }
+
+    const addStudentToInViewList = ({id, name, email}) => {
+      const childLis = studentsInView.getElementsByTagName("li");
+      console.debug(childLis.length)
+      // 6 elements max
+      if (childLis.length >= 12) return;
+      const view = document.createElement("li");
+      view.innerHTML = `<li student="true" id="${id}" name="${name}" class="col-span-1 bg-white rounded-lg shadow">
+        <div class="w-full flex items-center justify-between p-6 space-x-6">
+          <div class="flex-1 truncate">
+            <div class="flex items-center space-x-3">
+              <h3 class="text-gray-900 text-sm leading-5 font-medium truncate">${name}</h3>
+              <span class="flex-shrink-0 inline-block px-2 py-0.5 text-teal-800 text-xs leading-4 font-medium bg-teal-100 rounded-full">Student</span>
+            </div>
+          </div>
+        </div>
+        <div class="border-t border-gray-200">
+          <div class="-mt-px flex">
+            <div class="w-0 flex-1 flex border-r border-gray-200">
+              <a class="relative -mr-px w-0 flex-1 inline-flex items-center justify-center py-4 text-sm leading-5 text-gray-700 font-medium border border-transparent rounded-bl-lg hover:text-gray-500 focus:outline-none focus:shadow-outline-blue focus:border-blue-300 focus:z-10 transition ease-in-out duration-150">
+                <svg class="w-5 h-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
+                  <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
+                  <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
+                </svg>
+                <span class="ml-3">${email}</span>
+              </a>
+            </div>
+          </div>
+        </div>
+      </li>`
+      studentsInView.append(view);
+    }
     
-    // load classroom list
-    var checkExist = setInterval(() => {
+    const fetchClassrooms = () => {
+
+      // load classroom list and all students
+      var checkExist = setInterval(() => {
         if (auth.currentUser) {
-            clearInterval(checkExist);
-            auth.currentUser.getIdToken().then((token) => {
-                getClassroom({
-                    xToken: token
-                }).then((resp) => {
-                    console.debug(resp);
+          clearInterval(checkExist);
+          auth.currentUser.getIdToken().then((token) => {
+            getClassroom({
+              xToken: token
+            }).then((resp) => {
+              console.debug(resp);
                     localStorage.setItem("classrooms@os", JSON.stringify(resp.data));
+                    classRoomTBody.innerHTML = "";
                     resp.data.forEach(ass => {
                       createAndAppendClassroomTr(ass);
                     });
+                  }).catch((err) => {
+                    console.debug(err.message);
+                  })
+                  
+                  getClassroomStudents({
+                    xToken: token
+                  }).then((resp) => {
+                    console.debug(resp);
+                    localStorage.setItem("students@os", JSON.stringify(resp.data));
+                    resp.data.forEach((student) => {
+                      addStudentToInViewList(student);
+                    })
+                  }).catch((err) => {
+                    console.debug(err.message);
+                  })
                 }).catch((err) => {
                   console.debug(err.message);
                 })
-            }).catch((err) => {
-                console.debug(err.message);
-            })
         }
-    }, 100)
+      }, 100)       
+    }
+
+    fetchClassrooms();
+
+
 
     cancelNewClassRoomForm.addEventListener("click", (e) => {
       e.preventDefault();
@@ -224,14 +403,35 @@ const TheEducatorClassrooms = {
       showNewClassRoomForm();
     })
 
+    newStudentSearchInput.addEventListener("input", (e) => {
+      e.preventDefault();
+      console.debug(e.target.value);
+      searchStudentAndAddToView(e.target.value);
+    })
+
     newClassRoomForm.addEventListener("submit", (e) => {
       e.preventDefault();
       checkFormValuesAndSubmit({name: newCRName.value, description: newCRDesc.value});
       console.debug(newCRName.value, newCRDesc.value);
       return false;
     })
-  }
 
+    selectedStudentsDiv.addEventListener("click", (e) => {
+      const parentSpan = getClosestParent(e.target, "span");
+      if (parentSpan) {
+        console.debug(parentSpan)
+        parentSpan.remove();
+      }
+    })
+
+    studentsInView.addEventListener("click", (e) => {
+      const parentLi = getClosestParent(e.target, "li");
+      if (parentLi) {
+        console.debug(parentLi);
+        addStudentToSelectedDiv(parentLi);
+      }
+    })
+  }
 }
 
 export default TheEducatorClassrooms;

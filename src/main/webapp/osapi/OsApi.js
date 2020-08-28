@@ -185,6 +185,58 @@ export const putAccountURL = function(parameters = {}) {
   return domain + path + (keys.length > 0 ? '?' + (keys.map(key => key + '=' + encodeURIComponent(queryParameters[key])).join('&')) : '')
 }
 /**
+ * Get Student Details
+ * request: getClassroomStudents
+ * url: getClassroomStudentsURL
+ * method: getClassroomStudents_TYPE
+ * raw_url: getClassroomStudents_RAW_URL
+ * @param xToken - ID Token by Firebase
+ * @param classroomId - 
+ */
+export const getClassroomStudents = function(parameters = {}) {
+  const domain = parameters.$domain ? parameters.$domain : getDomain()
+  const config = parameters.$config || {
+    headers: {}
+  }
+  let path = '/classroom/students'
+  let body
+  let queryParameters = {}
+  let form = {}
+  if (parameters['xToken'] !== undefined) {
+    config.headers['X-Token'] = parameters['xToken']
+  }
+  if (parameters['xToken'] === undefined) {
+    return Promise.reject(new Error('Missing required  parameter: xToken'))
+  }
+  if (parameters['classroomId'] !== undefined) {
+    body = parameters['classroomId']
+  }
+  if (parameters.$queryParameters) {
+    Object.keys(parameters.$queryParameters).forEach(function(parameterName) {
+      queryParameters[parameterName] = parameters.$queryParameters[parameterName]
+    });
+  }
+  return request('get', domain + path, body, queryParameters, form, config)
+}
+export const getClassroomStudents_RAW_URL = function() {
+  return '/classroom/students'
+}
+export const getClassroomStudents_TYPE = function() {
+  return 'get'
+}
+export const getClassroomStudentsURL = function(parameters = {}) {
+  let queryParameters = {}
+  const domain = parameters.$domain ? parameters.$domain : getDomain()
+  let path = '/classroom/students'
+  if (parameters.$queryParameters) {
+    Object.keys(parameters.$queryParameters).forEach(function(parameterName) {
+      queryParameters[parameterName] = parameters.$queryParameters[parameterName]
+    })
+  }
+  let keys = Object.keys(queryParameters)
+  return domain + path + (keys.length > 0 ? '?' + (keys.map(key => key + '=' + encodeURIComponent(queryParameters[key])).join('&')) : '')
+}
+/**
  * Get Classroom Details
  * request: getClassroom
  * url: getClassroomURL
@@ -385,13 +437,65 @@ export const postAssignmentURL = function(parameters = {}) {
   return domain + path + (keys.length > 0 ? '?' + (keys.map(key => key + '=' + encodeURIComponent(queryParameters[key])).join('&')) : '')
 }
 /**
+ * Update assignment
+ * request: putAssignment
+ * url: putAssignmentURL
+ * method: putAssignment_TYPE
+ * raw_url: putAssignment_RAW_URL
+ * @param xToken - ID Token by Firebase
+ * @param assignment - 
+ */
+export const putAssignment = function(parameters = {}) {
+  const domain = parameters.$domain ? parameters.$domain : getDomain()
+  const config = parameters.$config || {
+    headers: {}
+  }
+  let path = '/assignment'
+  let body
+  let queryParameters = {}
+  let form = {}
+  if (parameters['xToken'] !== undefined) {
+    config.headers['X-Token'] = parameters['xToken']
+  }
+  if (parameters['xToken'] === undefined) {
+    return Promise.reject(new Error('Missing required  parameter: xToken'))
+  }
+  if (parameters['assignment'] !== undefined) {
+    body = parameters['assignment']
+  }
+  if (parameters.$queryParameters) {
+    Object.keys(parameters.$queryParameters).forEach(function(parameterName) {
+      queryParameters[parameterName] = parameters.$queryParameters[parameterName]
+    });
+  }
+  return request('put', domain + path, body, queryParameters, form, config)
+}
+export const putAssignment_RAW_URL = function() {
+  return '/assignment'
+}
+export const putAssignment_TYPE = function() {
+  return 'put'
+}
+export const putAssignmentURL = function(parameters = {}) {
+  let queryParameters = {}
+  const domain = parameters.$domain ? parameters.$domain : getDomain()
+  let path = '/assignment'
+  if (parameters.$queryParameters) {
+    Object.keys(parameters.$queryParameters).forEach(function(parameterName) {
+      queryParameters[parameterName] = parameters.$queryParameters[parameterName]
+    })
+  }
+  let keys = Object.keys(queryParameters)
+  return domain + path + (keys.length > 0 ? '?' + (keys.map(key => key + '=' + encodeURIComponent(queryParameters[key])).join('&')) : '')
+}
+/**
  * Create classroom student
  * request: postClassroomAddStudents
  * url: postClassroomAddStudentsURL
  * method: postClassroomAddStudents_TYPE
  * raw_url: postClassroomAddStudents_RAW_URL
  * @param xToken - ID Token by Firebase
- * @param classroomStudent - 
+ * @param classroomStudents - 
  */
 export const postClassroomAddStudents = function(parameters = {}) {
   const domain = parameters.$domain ? parameters.$domain : getDomain()
@@ -408,8 +512,8 @@ export const postClassroomAddStudents = function(parameters = {}) {
   if (parameters['xToken'] === undefined) {
     return Promise.reject(new Error('Missing required  parameter: xToken'))
   }
-  if (parameters['classroomStudent'] !== undefined) {
-    body = parameters['classroomStudent']
+  if (parameters['classroomStudents'] !== undefined) {
+    body = parameters['classroomStudents']
   }
   if (parameters.$queryParameters) {
     Object.keys(parameters.$queryParameters).forEach(function(parameterName) {

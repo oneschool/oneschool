@@ -6,17 +6,17 @@ const TheStudentDashboard = {
         <div class="pb-5 border-b border-gray-200">
         <div class="-ml-2 -mt-2 flex flex-wrap items-baseline">
             <p class="ml-2 mt-1 text-sm leading-5 text-gray-500 truncate">Welcome, </p>
-            <h3 id="account-name" class="ml-2 mt-2 text-lg leading-6 font-medium text-gray-900">
+            <h3 id="saccount-name" class="ml-2 mt-2 text-lg leading-6 font-medium text-gray-900">
             </h3>
         </div>
         </div>
 
         
-        <h4 id="account-name" class="ml-2 mt-4 text-lg leading-6 font-medium text-gray-900">
-        Pending Assignments
+        <h4 id="saccount-name" class="ml-2 mt-4 text-lg leading-6 font-medium text-gray-900">
+        Ongoing Assignments
         </h4>
         <div class="bg-white shadow overflow-hidden sm:rounded-md mt-4">
-            <ul id="ongoing-ass-list">
+            <ul id="spending-ass-list">
             </ul>
         </div>
 
@@ -25,15 +25,16 @@ const TheStudentDashboard = {
   },
   after_render: async () => { 
     const userData = JSON.parse(localStorage.getItem("user@os"));
-    const welcomeName = document.querySelector("#account-name");
-    const onGoingAssList = document.querySelector("#ongoing-ass-list");
-    welcomeName.innerText = userData.name.split(" ").slice(0);
+    const welcomeName = document.querySelector("#saccount-name");
+    const onGoingAssList = document.querySelector("#spending-ass-list");
+    welcomeName.innerText = userData.name.split(" ")[0];
     
-    const createAndAppendOngoingAssLi = ({name, description, deadline, submitted}) => {
+    const createAndAppendOngoingAssLi = ({name, description, deadline, submitted, scored_marks, total_marks, checked}) => {
         const shortDesc = description.slice(0, 25) + "...";
         const date = new Date(deadline);
         const options = { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' };
         const dateString = date.toLocaleDateString("en-US", options);
+        const checkedString = `<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Checked: ${scored_marks}/${total_marks}</span>`;
         const eli = `<a class="block hover:bg-gray-50 focus:outline-none focus:bg-gray-50 transition duration-150 ease-in-out">
             <div class="px-4 py-4 sm:px-6">
             <div class="flex items-center justify-between">
@@ -42,8 +43,9 @@ const TheStudentDashboard = {
                 </div>
                 <div class="ml-2 flex-shrink-0 flex">
                 <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                    Assignment
+                    ${submitted ? "Submitted": ""}
                 </span>
+                ${checked ? checkedString : ""}
                 </div>
             </div>
             <div class="mt-2 sm:flex sm:justify-between">
@@ -65,7 +67,7 @@ const TheStudentDashboard = {
             </div>
         </a>`;
 
-        if (Date.now() < deadline && submitted === false) {
+        if (Date.now() < deadline) {
             const newEli = document.createElement("li");
             newEli.innerHTML = eli;
             onGoingAssList.append(newEli);
@@ -81,9 +83,21 @@ const TheStudentDashboard = {
                     xToken: token
                 }).then((resp) => {
                     console.debug(resp);
-                    resp.data.forEach(ass => {
+                    localStorage.setItem("assignments@os", JSON.stringify(resp.data));
+                    const flattenAssigments = (ass) => {
+                        ass = ass.filter((as, index, self) => {
+                            return index === self.findIndex((t) => (
+                                t.assignmentId == as.assignmentId
+                            ))
+                        })
+                        console.debug(ass);
+                        return ass;
+                    }
+                    flattenAssigments(resp.data).forEach(ass => {
                         createAndAppendOngoingAssLi(ass);
                     });
+                }).catch((err) => {
+                    console.debug(err.message);
                 })
             }).catch((err) => {
                 console.debug(err.message);

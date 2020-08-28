@@ -1,13 +1,13 @@
-import { postAssignment, getAssignment } from "../../osapi/OsApi.js"
+import { postAssignment, getAssignment, putAssignment } from "../../osapi/OsApi.js"
 import TheLoader from "./TheLoader.js"
 
 const TheEducatorAssignments = {
   render: async () => {
 
-      const Loader = await TheLoader.render();
-
       let view =  /*html*/`
-      ${Loader}
+      <div style="display: none;" id="page_loader_ass" class="min-h-screen flex items-center justify-center bg-gray-100 py-12 px-4 sm:px-6 lg:px-8">
+        <div class="w-12 h-12 border-4 border-purple-600 rounded-full loader"></div>
+      </div>   
       <div id="ass-section">
       <div class="bg-white overflow-hidden sm:rounded-lg sm:shadow">
         <div class="bg-white px-4 py-5 border-b border-gray-200 sm:px-6">
@@ -125,16 +125,36 @@ const TheEducatorAssignments = {
         </div>
       </form>
 
+
+
+      <form id="editass-form" style="display: none;">
+        <div id="editass-data" class="bg-white shadow overflow-hidden sm:rounded-lg mt-4">
+          
+        </div>
+        <div class="mt-4 pt-5">
+          <div class="flex justify-end">
+            <span class="inline-flex rounded-md shadow-sm">
+              <button id="cancel-edit-ass" type="button" class="py-2 px-4 border border-gray-300 rounded-md text-sm leading-5 font-medium text-gray-700 hover:text-gray-500 focus:outline-none focus:border-blue-300 focus:shadow-outline-blue active:bg-gray-50 active:text-gray-800 transition duration-150 ease-in-out">
+                Cancel
+              </button>
+            </span>
+            <span class="ml-3 inline-flex rounded-md shadow-sm">
+              <button type="submit" class="inline-flex justify-center py-2 px-4 border border-transparent text-sm leading-5 font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-500 focus:outline-none focus:border-indigo-700 focus:shadow-outline-indigo active:bg-indigo-700 transition duration-150 ease-in-out">
+                Submit
+              </button>
+            </span>
+          </div>
+        </div>
+      </form>
+
       </div>
       `
       return view
   },
   after_render: async () => { 
     // yay
-    await TheLoader.after_render();
-    const pageLoader = document.querySelector("#page_loader");
+    const pageLoader = document.querySelector("#page_loader_ass");
     const sectionAss = document.querySelector("#ass-section");
-    
     const errorContainer = document.querySelector("#error-container");
     const errorList = document.querySelector("#error-list");
     const closeErrorBtn = document.querySelector("#close-error-btn");
@@ -146,8 +166,15 @@ const TheEducatorAssignments = {
     const createNewAssBtn = document.querySelector("#create-new-ass-btn");
     const pendingAssList = document.querySelector("#pending-ass-list");
     const checkedAssList = document.querySelector("#checked-ass-list");
-
     const newAssClassRoom = document.querySelector("#new-ass-classroom");
+
+    const editAssForm = document.querySelector("#editass-form");
+    const cancelEditAssignmentForm = document.querySelector("#cancel-edit-ass");
+    const editAssData = document.querySelector("#editass-data");
+
+    const hideEditAssForm = () => {
+      editAssForm.style.display = "none";
+    }
 
     const hideAssList = () => {
       AssList.style.display = "none";
@@ -165,10 +192,18 @@ const TheEducatorAssignments = {
       newAssForm.style.display = "";
     }
 
+    const showEditAssForm = () => {
+      editAssForm.style.display = "";
+    }
 
     const showLoader = () => {
       pageLoader.style.display = "";
       sectionAss.style.display = "none";
+    }
+
+    const hideLoader = () => {
+      pageLoader.style.display = "none";
+      sectionAss.style.display = "";
     }
 
     const loadClassRoomsToDropDown = () => {
@@ -181,11 +216,13 @@ const TheEducatorAssignments = {
       })
     }
 
-    const createAndAppendPendingAndCheckedAssLi = ({name, description, deadline, scored_marks, total_marks}) => {
+    const createAndAppendPendingAndCheckedAssLi = (ass) => {
+      const {name, description, deadline, scored_marks, total_marks, checked, submitted} = ass;
       const shortDesc = description.slice(0, 25) + "...";
       const date = new Date(deadline);
       const options = { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' };
       const dateString = date.toLocaleDateString("en-US", options);
+      const submittedString = `<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Submitted</span>`
       const peli = `<a class="block hover:bg-gray-50 focus:outline-none focus:bg-gray-50 transition duration-150 ease-in-out">
           <div class="px-4 py-4 sm:px-6">
           <div class="flex items-center justify-between">
@@ -196,6 +233,7 @@ const TheEducatorAssignments = {
               <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
                   Unchecked
               </span>
+                ${submitted ? submittedString: ""}
               </div>
           </div>
           <div class="mt-2 sm:flex sm:justify-between">
@@ -248,15 +286,82 @@ const TheEducatorAssignments = {
           </div>
       </a>`;
 
-      if (scored_marks === 0 || scored_marks === null) {
-        const newEli = document.createElement("li");
+      const newEli = document.createElement("li");
+      newEli.setAttribute("class", "cursor-pointer");
+      newEli.setAttribute("data", JSON.stringify(ass));
+      if (checked === false) {
         newEli.innerHTML = peli;
         pendingAssList.append(newEli);
       } else {
-        const newEli = document.createElement("li");
         newEli.innerHTML = celi;
         checkedAssList.append(newEli);
       }
+    }
+
+    const getClosestParent = (elem, selector) => {
+      let count = 0;
+      for ( ; elem && elem !== document; elem = elem.parentNode ) {
+        if ( elem.matches( selector ) ) return elem;
+        count++;
+        if (count > 5) return null;
+      }
+      return null;
+    }
+
+    const showAssignmentEditForm = ({id, description, solution, total_marks, name, submitted}) => {
+      hideAssList();
+      editAssData.innerHTML = "";
+      editAssData.setAttribute("id", id);
+      const dataDiv = document.createElement("div");
+      if (!submitted) {
+        solution = "Not Submitted"
+      }
+      dataDiv.setAttribute("class", "px-4 py-5 border-b border-gray-200 sm:px-6");
+      const data = `<h3 class="text-lg leading-6 font-medium text-gray-900">
+          ${name}
+        </h3>
+        <p class="mt-1 max-w-2xl text-sm leading-5 text-gray-500">
+          Please add marks if the student submitted the assignment.
+        </p>
+      </div>
+      <div class="mt-4">
+        <dl>
+          <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+            <dt class="text-sm leading-5 font-medium text-gray-500">
+              Description
+            </dt>
+            <dd class="mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
+              ${description}
+            </dd>
+          </div>
+          <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+            <dt class="text-sm leading-5 font-medium text-gray-500">
+              Solution
+            </dt>
+            <dd class="mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
+              ${solution}
+            </dd>
+          </div>
+          <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+            <dt class="text-sm leading-5 font-medium text-gray-500">
+              Total Marks
+            </dt>
+            <dd class="mtCreate-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
+              ${total_marks}
+            </dd>
+          </div>
+          <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+            <dt class="text-sm leading-5 font-medium text-gray-500">
+              Scored Marks
+            </dt>
+            <dd class="mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
+              <input id="edit-ass-scored-marks" type="number" class="form-input block w-full transition duration-150 ease-in-out sm:text-sm sm:leading-5">
+            </dd>
+          </div>
+        </dl>`
+      dataDiv.innerHTML = data;
+      editAssData.append(dataDiv);
+      showEditAssForm();
     }
 
     const createAssignment  = ({name, description, educatorId, classroomId, total_marks, deadline, submitted}) => {
@@ -293,6 +398,40 @@ const TheEducatorAssignments = {
       }, 100)
     }
 
+    const updateAssignment = ({id, scored_marks}) => {
+      
+      showLoader();
+
+      var checkExist = setInterval(() => {
+        if (auth.currentUser) {
+            clearInterval(checkExist);
+            auth.currentUser.getIdToken().then((token) => {
+              putAssignment({
+                xToken: token,
+                assignment: {
+                  id: id,
+                  scored_marks: scored_marks
+                }
+              }).then((resp) => {
+                console.debug(resp);
+                hideEditAssForm();
+                hideLoader();
+                fetchAssignments();
+                showAssList();
+              }).catch((err) => {
+                console.debug("Assignment update failed");
+                console.debug(err.message);
+              })
+            }).catch((err) => {
+                console.debug(err.message);
+            })
+        }
+        // console.debug(name, description);
+        // clearInterval(checkExist);
+      }, 100)
+
+    }
+
     const validateNewAssForm = () => {
       const name = newAssForm["new-ass-name"].value.trim();
       const desc = newAssForm["new-ass-desc"].value.trim();
@@ -323,43 +462,70 @@ const TheEducatorAssignments = {
           submitted: false
       };
     }
+
+    const validateEditAssForm = () => {
+      const marks = parseInt(editAssForm["edit-ass-scored-marks"].value);
+      const assignmentId = editAssData.getAttribute("id");
+      let valid = Number.isInteger(marks);
+      valid = valid && (assignmentId != null) && (assignmentId !== "");
+
+      console.debug(valid, marks, assignmentId);
+      
+      return {
+        valid: valid,
+        id: assignmentId,
+        scored_marks: marks
+      }
+    }
     
-    // load assignment list
-    var checkExist = setInterval(() => {
-        if (localStorage.getItem("assignments@os") !== null) {
+    const fetchAssignments = () => {
+      // load assignment list
+      
+      var checkExist = setInterval(() => {
+        if (auth.currentUser) {
           clearInterval(checkExist);
-          const data = JSON.parse(localStorage.getItem("assignments@os"));
-          data.forEach(ass => {
-            createAndAppendPendingAndCheckedAssLi(ass);
-          });
-        } else {
-          if (auth.currentUser) {
-            clearInterval(checkExist);
-            auth.currentUser.getIdToken().then((token) => {
-              getAssignment({
-                xToken: token
-              }).then((resp) => {
-                console.debug(resp);
-                localStorage.setItem("assignments@os", JSON.stringify(resp.data));
-                resp.data.forEach(ass => {
-                  createAndAppendPendingAndCheckedAssLi(ass);
-                });
-              }).catch((err) => {
-                console.debug(err.message);
-              })
+          auth.currentUser.getIdToken().then((token) => {
+            getAssignment({
+              xToken: token
+            }).then((resp) => {
+              console.debug(resp);
+              localStorage.setItem("assignments@os", JSON.stringify(resp.data));
+              pendingAssList.innerHTML = "";
+              checkedAssList.innerHTML = "";
+              resp.data.forEach(ass => {
+                createAndAppendPendingAndCheckedAssLi(ass);
+              });
             }).catch((err) => {
               console.debug(err.message);
             })
-          }
-        }
-    }, 100)
-
+          }).catch((err) => {
+            console.debug(err.message);
+            const getClosestParent = (elem, selector) => {
+              let count = 0;
+                for ( ; elem && elem !== document; elem = elem.parentNode ) {
+                  if ( elem.matches( selector ) ) return elem;
+                  count++;
+                  if (count > 5) return null;
+                }
+                return null;
+              }       })
+            }
+      }, 100);
+    }
+    fetchAssignments();
 
     cancelNewAssignmentForm.addEventListener("click", (e) => {
       e.preventDefault();
       hideNewAssForm();
       showAssList();
     })
+
+    cancelEditAssignmentForm.addEventListener("click", (e) => {
+      e.preventDefault();
+      hideEditAssForm();
+      showAssList();
+    })
+
 
     createNewAssBtn.addEventListener("click", (e) => {
       e.preventDefault();
@@ -377,6 +543,29 @@ const TheEducatorAssignments = {
         errorContainer.style.display = "";
       }
       return false;
+    })
+
+    editAssForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const data = validateEditAssForm();
+      if (data.valid) {
+        updateAssignment(data);
+      } else {
+        errorContainer.style.display = "";
+      }
+      return false;
+    })
+    
+    AssList.addEventListener("click", (e) => {
+      const li = getClosestParent(e.target, "li");
+      if (li) {
+        const data = li.getAttribute("data");
+        if (data) {
+          const dataObject = JSON.parse(data);
+          console.debug(dataObject);
+          showAssignmentEditForm(dataObject);
+        }
+      } 
     })
   }
 
