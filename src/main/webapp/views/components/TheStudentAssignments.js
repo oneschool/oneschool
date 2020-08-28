@@ -231,7 +231,7 @@ const TheStudentAssignments = {
               Scored Marks
             </dt>
             <dd class="mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
-              ${scored_marks ? 0 : scored_marks}
+              ${scored_marks ? scored_marks : 0}
             </dd>
           </div>
         </dl>`
