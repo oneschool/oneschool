@@ -38,7 +38,14 @@ public class AccountServlet extends HttpServlet {
             return;
         }
 
-        Account account = accountDao.getAccount(firebaseUid);
+        String accountId = ServletUtils.getParameter(req, Account.Keys.ID, null);
+        Account account;
+
+        if (accountId == null) {
+            account = accountDao.getAccount(firebaseUid);
+        } else {
+            account = accountDao.getAccountById(accountId);
+        }
 
         if (account == null) {
             resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
