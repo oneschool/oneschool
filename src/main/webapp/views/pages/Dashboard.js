@@ -1,25 +1,31 @@
 import Utils from "../../utils/Utils.js";
+import TheEducatorDashboard from "../components/TheEducatorDashboard.js";
+import TheStudentDashboard from "../components/TheStudentDashboard.js";
+import TheLoader from "../components/TheLoader.js";
+import TheEducatorClassroom from "../components/TheEducatorClassrooms.js";
+import TheEducatorAssignments from "../components/TheEducatorAssignments.js";
+import TheStudentClassrooms from "../components/TheStudentClassrooms.js";
+import TheStudentAssignments from "../components/TheStudentAssignments.js";
 
 const Educator = {
   render : async () => {
       // Always remember to run all the after_render functions 
       // of loaded components in after_render method of the page
-      
+      const EducatorDashboard = await TheEducatorDashboard.render();
+      const EducatorClassrooms = await TheEducatorClassroom.render();
+      const EducatorAssignments = await TheEducatorAssignments.render();
+
+      const StudentDashboard = await TheStudentDashboard.render();
+      const StudentClassrooms = await TheStudentClassrooms.render();
+      const StudentAssignments = await TheStudentAssignments.render();
+
+      const Loader = await TheLoader.render();
+
       const view =  /*html*/`
         <div class="h-screen flex overflow-hidden bg-gray-100" x-data="{ sideBarOpen: false }" @keydown.window.escape="sideBarOpen = false">
           <!-- Off-canvas menu for mobile -->
           <div x-show="sideBarOpen" class="md:hidden">
             <div class="fixed inset-0 flex z-40">
-              <!--
-                Off-canvas menu overlay, show/hide based on off-canvas menu state.
-        
-                Entering: "transition-opacity ease-linear duration-300"
-                  From: "opacity-0"
-                  To: "opacity-100"
-                Leaving: "transition-opacity ease-linear duration-300"
-                  From: "opacity-100"
-                  To: "opacity-0"
-              -->
               <div 
                 @click="sideBarOpen = false"
                 x-show="sideBarOpen" 
@@ -32,16 +38,6 @@ const Educator = {
                 class="fixed inset-0">
                 <div class="absolute inset-0 bg-gray-600 opacity-75"></div>
               </div>
-              <!--
-                Off-canvas menu, show/hide based on off-canvas menu state.
-        
-                Entering: "transition ease-in-out duration-300 transform"
-                  From: "-translate-x-full"
-                  To: "translate-x-0"
-                Leaving: "transition ease-in-out duration-300 transform"
-                  From: "translate-x-0"
-                  To: "-translate-x-full"
-              -->
               <div 
                 x-show="sideBarOpen" 
                 x-transition:enter="transition ease-in-out duration-300 transform"
@@ -168,14 +164,14 @@ const Educator = {
                 <div class="ml-4 flex items-center md:ml-6">
         
                   <!-- Profile dropdown -->
-                  <div @click.away="open = false" class="ml-3 relative" x-data="{ open: false }">
+                  <div @click.away="openProfileDropDown = false" class="ml-3 relative" x-data="{ openProfileDropDown: false }">
                     <div>
-                      <button @click="open = !open" class="max-w-xs flex items-center text-sm rounded-full focus:outline-none focus:shadow-outline" id="user-menu" aria-label="User menu" aria-haspopup="true">
-                        <img class="h-8 w-8 rounded-full" src="https://karngyan.com/assets/images/profile.jpg" alt="">
+                      <button @click="openProfileDropDown = !openProfileDropDown" class="max-w-xs flex items-center text-sm rounded-full focus:outline-none focus:shadow-outline" id="user-menu" aria-label="User menu" aria-haspopup="true">
+                        <img class="h-8 w-8 rounded-full" src="img/user.svg" alt="">
                       </button>
                     </div>
                     <div 
-                      x-show="open" 
+                      x-show="openProfileDropDown" 
                       x-description="Profile dropdown panel, show/hide based on dropdown state." 
                       x-transition:enter="transition ease-out duration-100" 
                       x-transition:enter-start="transform opacity-0 scale-95" 
@@ -186,8 +182,7 @@ const Educator = {
                       class="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg">
                       <div class="py-1 rounded-md bg-white shadow-xs" role="menu" aria-orientation="vertical" aria-labelledby="user-menu">
                         <!-- Add more options like profile, settings -->
-                        <a href="" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition ease-in-out duration-150" role="menuitem">Your Profile</a>
-                        <a href="" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition ease-in-out duration-150" role="menuitem">Settings</a>
+                        <!-- <a href="" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition ease-in-out duration-150" role="menuitem">Your Profile</a> -->
                         <a href="#" id="sign-out-btn" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition ease-in-out duration-150" role="menuitem">Sign out</a>
                       </div>
                     </div>
@@ -204,7 +199,24 @@ const Educator = {
                 <div class="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
                   <!-- Replace with your content -->
                   <div class="py-4">
-                    <div class="border-4 border-dashed border-gray-200 rounded-lg h-96"></div>
+                    <div id="educator-dashboard" style="display: none;">
+                      ${EducatorDashboard}
+                    </div>
+                    <div id="educator-classrooms" style="display: none;">
+                      ${EducatorClassrooms}
+                    </div>
+                    <div id="educator-assigments" style="display: none;">
+                      ${EducatorAssignments}
+                    </div>
+                    <div id="student-dashboard" style="display: none;">
+                      ${StudentDashboard}
+                    </div>
+                    <div id="student-classrooms" style="display: none;">
+                      ${StudentClassrooms}
+                    </div>
+                    <div id="student-assigments" style="display: none;">
+                      ${StudentAssignments}
+                    </div>
                   </div>
                   <!-- /End replace -->
                 </div>
@@ -216,21 +228,46 @@ const Educator = {
       return view
   },
   after_render: async () => {
-    const footerContainer = document.querySelector("#footer_container")
-    // hide footer
-    footerContainer.style.display = "none";
-    
-    // ----------- consts
+    await TheLoader.after_render();
     const userData = JSON.parse(localStorage.getItem("user@os"));
+    switch (userData.role) {
+      case "student":
+        await TheStudentDashboard.after_render();
+        await TheStudentClassrooms.after_render();
+        await TheStudentAssignments.after_render();
+        break;
+      case "educator":
+        await TheEducatorDashboard.after_render();
+        await TheEducatorClassroom.after_render();
+        await TheEducatorAssignments.after_render();
+        break;
+    }
+
+    // ----------- consts
     const educatorBadges = document.getElementsByClassName("educator-badge");
     const studentBadges = document.getElementsByClassName("student-badge");
     const dashboardSidebar = document.getElementsByClassName("dashboard");
     const classroomSidebar = document.getElementsByClassName("classrooms");
     const assignmentSidebar = document.getElementsByClassName("assignments");
     const sectionHeader = document.querySelector("#section-header")
-    
+    const educatorDashboard = document.querySelector("#educator-dashboard");
+    const educatorClassrooms = document.querySelector("#educator-classrooms");
+    const educatorAssignments = document.querySelector("#educator-assigments");
+    const studentDashboard = document.querySelector("#student-dashboard");
+    const studentClassrooms = document.querySelector("#student-classrooms");
+    const studentAssignments = document.querySelector("#student-assigments");
+    const sections = {
+      DASHBOARD: "dashboard",
+      CLASSROOMS: "classrooms",
+      ASSIGNMENTS: "assignments"
+    }
+    const users = {
+      EDUCATOR: "educator",
+      STUDENT: "student"
+    }
+    const activeUser = userData.role
+    const activeSection = sections.DASHBOARD;
     const signOutBtn = document.querySelector("#sign-out-btn");
-    console.debug(signOutBtn);
 
     // ----------- methods
     const navigateToLogin = () => {
@@ -254,43 +291,107 @@ const Educator = {
       })
     };
 
+    const hideAllSections = () => {
+      educatorDashboard.style.display = "none";
+      educatorAssignments.style.display = "none";
+      educatorClassrooms.style.display = "none";
+      studentDashboard.style.display = "none";
+      studentAssignments.style.display = "none";
+      studentClassrooms.style.display = "none";
+    }
+
+    const showDashboard = () => {
+      switch (activeUser) {
+        case users.STUDENT:
+          studentDashboard.style.display = "";
+          break;
+        case users.EDUCATOR:
+          educatorDashboard.style.display = "";
+          break;
+      }
+    }
+    const showAssignments = () => {
+      switch (activeUser) {
+        case users.STUDENT:
+          studentAssignments.style.display = "";
+          break;
+        case users.EDUCATOR:
+          educatorAssignments.style.display = "";
+          break;
+      }
+    }
+    const showClassrooms = () => {
+      switch (activeUser) {
+        case users.STUDENT:
+          studentClassrooms.style.display = "";
+          break;
+        case users.EDUCATOR:
+          educatorClassrooms.style.display = "";
+          break;
+      }
+    }
+
     const focusDashboard = () => {
       sectionHeader.innerText = "Dashboard";
       [...dashboardSidebar].forEach((el) => {
         el.classList.add("bg-gray-100");
+        el.classList.add("text-gray-900");
+        el.classList.remove("text-gray-600");
       });
       [...classroomSidebar].forEach((el) => {
         el.classList.remove("bg-gray-100");
+        el.classList.add("text-gray-600");
+        el.classList.remove("text-gray-900");
       });
       [...assignmentSidebar].forEach((el) => {
         el.classList.remove("bg-gray-100");
+        el.classList.add("text-gray-600");
+        el.classList.remove("text-gray-900");
       });
+      hideAllSections();
+      showDashboard();
     };
 
     const focusClassroom = () => {
       sectionHeader.innerText = "Classrooms";
       [...classroomSidebar].forEach((el) => {
         el.classList.add("bg-gray-100");
+        el.classList.add("text-gray-900");
+        el.classList.remove("text-gray-600");
       });
       [...dashboardSidebar].forEach((el) => {
         el.classList.remove("bg-gray-100");
+        el.classList.add("text-gray-600");
+        el.classList.remove("text-gray-900");
       });
       [...assignmentSidebar].forEach((el) => {
         el.classList.remove("bg-gray-100");
+        el.classList.add("text-gray-600");
+        el.classList.remove("text-gray-900");
       });
+      hideAllSections();
+      showClassrooms();
     };
 
     const focusAssignment = () => {
       sectionHeader.innerText = "Assignments";
       [...assignmentSidebar].forEach((el) => {
         el.classList.add("bg-gray-100");
+        el.classList.add("text-gray-900");
+        el.classList.remove("text-gray-600");
       });
       [...dashboardSidebar].forEach((el) => {
         el.classList.remove("bg-gray-100");
+        el.classList.add("text-gray-600");
+        el.classList.remove("text-gray-900");
       });
       [...classroomSidebar].forEach((el) => {
         el.classList.remove("bg-gray-100");
+        el.classList.add("text-gray-600");
+        el.classList.remove("text-gray-900");
       });
+      hideAllSections();
+      showAssignments();
     };
 
     // ------------ calls and logic and event listeners
@@ -324,10 +425,38 @@ const Educator = {
       })
     })
 
-    if (userData?.role === "educator") {
+    if (activeUser === users.EDUCATOR) {
       showEducatorBadges();
-    } else if (userData?.role === "student") {
+      switch(activeSection) {
+        case sections.DASHBOARD:
+          focusDashboard();
+          educatorDashboard.style.display = "";
+          break;
+        case sections.ASSIGNMENTS:
+          focusAssignment();
+          educatorAssignments.style.display = "";
+          break;
+        case sections.CLASSROOMS:
+          focusClassroom();
+          educatorClassrooms.style.display = "";
+          break;
+      }
+    } else if (activeUser === users.STUDENT) {
       showStudentBadges();
+      switch(activeSection) {
+        case sections.DASHBOARD:
+          focusDashboard();
+          studentDashboard.style.display = "";
+          break;
+        case sections.ASSIGNMENTS:
+          focusAssignment();
+          studentAssignments.style.display = "";
+          break;
+        case sections.CLASSROOMS:
+          focusClassroom();
+          studentClassrooms.style.display = "";
+          break;
+      }
     }
 
     // after_render of components loaded in the page

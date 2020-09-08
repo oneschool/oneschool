@@ -4,7 +4,6 @@ import com.google.auth.oauth2.GoogleCredentials;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.FirebaseToken;
 import com.google.sps.utils.middleware.MutableHttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
@@ -57,8 +56,8 @@ public class AuthFilter implements Filter {
         HttpServletResponse response = (HttpServletResponse) servletResponse;
 
         // Uncomment the following line when doing local testing and add X-Firebase-Uid in the Headers
-//                filterChain.doFilter(request, response);
-//                return;
+//        filterChain.doFilter(request, response);
+//        return;
 
         String token = request.getHeader("X-Token");
         FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();

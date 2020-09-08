@@ -1,0 +1,438 @@
+# Credits: Tanya Sikarwar
+# Thanks Friend
+swagger: '2.0'
+info:
+  title: OneSchool API
+  description: OneSchool Web Servlet API
+  version: 1.0.0
+  contact:
+    email: mail@karngyan.com
+
+host: '127.0.0.1:8080'
+basePath: /api/v1
+schemes:
+  - http
+
+consumes:
+  - application/json
+produces:
+  - application/json
+
+
+paths:
+  /account:
+    get:
+      tags:
+        - account
+      description: Get Account Details
+      parameters:
+        - in: header
+          name: X-Token
+          description: ID Token by Firebase
+          required: true
+          type: string
+      responses:
+        200:
+          description: Account details fetch success
+          schema:
+            $ref: '#/definitions/models.Account'
+        401:
+          description: Unauthorized
+    post:
+      tags:
+        - account
+      description: Create account
+      parameters:
+        - in: header
+          name: X-Token
+          description: ID Token by Firebase
+          required: true
+          type: string
+        - in: body
+          name: account
+          schema:
+            $ref: '#/definitions/models.EAccount'
+      responses:
+        201:
+          description: Account creation success
+        401:
+          description: Unauthorized
+
+    put:
+      tags:
+        - account
+      description: Update Account
+      parameters:
+        - in: header
+          name: X-Token
+          description: ID Token by Firebase
+          required: true
+          type: string
+        - in: body
+          name: account
+          schema:
+            $ref: '#/definitions/models.EAccount'
+      responses:
+        200:
+          description: Account updation success
+        401:
+          description: Unauthorized
+          
+  /classroom/students:
+    get:
+      tags:
+        - student
+      description: Get Student Details
+      parameters:
+        - in: header
+          name: X-Token
+          description: ID Token by Firebase
+          required: true
+          type: string
+        - in: body
+          name: ClassroomId
+          schema:
+            $ref: '#/definitions/models.ClassroomId'
+          
+      responses:
+        200:
+          description: Student details fetch success
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/models.Account'
+        401:
+          description: Unauthorized
+
+  /classroom:
+    get:
+      tags:
+        - classroom
+      description: Get Classroom Details
+      parameters:
+        - in: header
+          name: X-Token
+          description: ID Token by Firebase
+          required: true
+          type: string
+      responses:
+        200:
+          description: Classroom details fetch success
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/models.Classroom'
+        401:
+          description: Unauthorized
+    post:
+      tags:
+        - classroom
+      description: Create classroom
+      parameters:
+        - in: header
+          name: X-Token
+          description: ID Token by Firebase
+          required: true
+          type: string
+        - in: body
+          name: classroom
+          schema:
+            $ref: '#/definitions/models.EClassroom'
+      responses:
+        201:
+          description: Classroom creation success
+        401:
+          description: Unauthorized
+
+  /assignment:
+    get:
+      tags:
+        - assignment
+      description: Get Assignment Details
+      parameters:
+        - in: header
+          name: X-Token
+          description: ID Token by Firebase
+          required: true
+          type: string
+      responses:
+        200:
+          description: Assignment details fetch success
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/models.Assignment'
+        401:
+          description: Unauthorized
+    post:
+      tags:
+        - assignment
+      description: Create assignment
+      parameters:
+        - in: header
+          name: X-Token
+          description: ID Token by Firebase
+          required: true
+          type: string
+        - in: body
+          name: assignment
+          schema:
+            $ref: '#/definitions/models.EAssignment'
+      responses:
+        201:
+          description: Assignment creation success
+        401:
+          description: Unauthorized
+          
+    put:
+      tags:
+        - assignment
+      description: Update assignment
+      parameters:
+        - in: header
+          name: X-Token
+          description: ID Token by Firebase
+          required: true
+          type: string
+        - in: body
+          name: assignment
+          schema:
+            $ref: '#/definitions/models.AssignmentUpdate'
+            
+      responses:
+        201:
+          description: Assignment creation success
+        401:
+          description: Unauthorized
+
+  /classroom/addStudents:
+    post:
+      tags:
+        - classroomStudent
+      description: Create classroom student
+      parameters:
+        - in: header
+          name: X-Token
+          description: ID Token by Firebase
+          required: true
+          type: string
+        - in: body
+          name: classroomStudent
+          schema:
+            $ref: '#/definitions/models.ClassroomStudent'
+      responses:
+        201:
+          description: Assignment creation success
+        401:
+          description: Unauthorized
+
+definitions:
+  models.Account:
+    type: object
+    properties:
+      id:
+        type: number
+        example: 5629499534213120
+      firebaseUid:
+        type: string
+        example: "JxnqYGULkWRY4uGMShFvAYtk34s1"
+      name:
+        type: string
+        example: "Gyan Karn"
+      email:
+        type: string
+        example: "mail@karngyan.com"
+      role:
+        type: string
+        example: "student"
+      isVerified:
+        type: boolean
+        example: false
+      imageUrl:
+        type: string
+        example: "https://karngyan.com/assets/images/profile.jpg"
+      institute:
+        type: string
+        example: "BIT Mesra"
+      created:
+        type: number
+        example: 1598128274097
+      updated:
+        type: number
+        example: 1598128274097
+
+  models.EAccount:
+    type: object
+    properties:
+      firebaseUid:
+        type: string
+        example: "JxnqYGULkWRY4uGMShFvAYtk34s1"
+      name:
+        type: string
+        example: "Gyan Karn"
+      email:
+        type: string
+        example: "mail@karngyan.com"
+      role:
+        type: string
+        example: "student"
+      isVerified:
+        type: boolean
+        example: false
+      imageUrl:
+        type: string
+        example: "https://karngyan.com/assets/images/profile.jpg"
+      institute:
+        type: string
+        example: "BIT Mesra"
+
+  models.Classroom:
+    type: object
+    properties:
+      id:
+        type: string
+        example: "YGULkWRY4uGMShFvAYtk34s1"
+      name:
+        type: string
+        example: "Biology 101"
+      description:
+        type: string
+        example: "Beginner's course for Biology"
+      educatorId:
+        type: string
+        example: "YGULkWRY4uGMShFvAYtk34s1"
+      created:
+        type: number
+        example: 1598128274097
+      updated:
+        type: number
+        example: 1598128274097
+
+  models.EClassroom:
+    type: object
+    properties:
+      name:
+        type: string
+        example: "Biology 101"
+      description:
+        type: string
+        example: "Beginner's course on Biology"
+
+  models.Assignment:
+    type: object
+    properties:
+      id:
+        type: string
+        example: "YGULkWRY4uGMShFvAYtk34s1"
+      assignmentId:
+        type: string
+        example: "YGULkWRY4uGMShFvAYtk34s1"
+      name:
+        type: string
+        example: "Biology Assignment"
+      description:
+        type: string
+        example: "This assignment is based on plant cells"
+      studentId:
+        type: string
+        example: "YGULkWRY4uGMShFvAYtk34s1"
+      classroomId:
+        type: string
+        example: "YGULkWRY4uGMShFvAYtk34s1"
+      educatorId:
+        type: string
+        example: "YGULkWRY4uGMShFvAYtk34s1"
+      total_marks:
+        type: number
+        example: 100
+      scored_marks:
+        type: number
+        example: 70
+      deadline:
+        type: number
+        example: 1598128274097
+      solution:
+        type: string
+        example: "My solution to Biology assignment"
+      submitted:
+        type: boolean
+        example: false
+      checked:
+        type: boolean
+        example: false
+      created:
+        type: number
+        example: 1598128274097
+      updated:
+        type: number
+        example: 1598128274097
+
+  models.EAssignment:
+    type: object
+    properties:
+      name:
+        type: string
+        example: "Biology Assignment"
+      description:
+        type: string
+        example: "This assignment is based on plant cells"
+      studentId:
+        type: string
+        example: "YGULkWRY4uGMShFvAYtk34s1"
+      classroomId:
+        type: string
+        example: "YGULkWRY4uGMShFvAYtk34s1"
+      educatorId:
+        type: string
+        example: "YGULkWRY4uGMShFvAYtk34s1"
+      total_marks:
+        type: number
+        example: 100
+      scored_marks:
+        type: number
+        example: 70
+      deadline:
+        type: number
+        example: 1598128274097
+      solution:
+        type: string
+        example: "My solution to Biology assignment"
+      submitted:
+        type: boolean
+        example: true
+
+  models.ClassroomStudent:
+    type: object
+    properties:
+      classroomStudents:
+        type: array
+        items:
+          type: object
+          properties:
+            classroomId:
+              type: string
+              example: "YGULkWRY4uGMShFvAYtk34s1"
+            studentId:
+              type: string
+              example: "YGULkWRY4uGMShFvAYtk34s1"
+  
+  models.AssignmentUpdate:
+    type: object
+    properties:
+      id:
+        type: string
+        example: "YGULkWRY4uGMShFvAYtk34s1"
+      solution:
+        type: string
+        example: "Student solution for assignment"
+      scored_marks:
+        type: number
+        example: 0
+  
+  models.ClassroomId:
+    type: object
+    properties:
+      classroomId:
+        type: string
+        example: "YGULkWRY4uGMShFvAYtk34s1"
+  

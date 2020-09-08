@@ -50,6 +50,26 @@ const Login = {
                         </div>
                     </div>
 
+
+                    <div id="error-container" style="display: none;" class="rounded-md bg-red-50 my-4 p-4">
+                    <div class="flex">
+                        <div id="close-error-btn" class="cursor-pointer flex-shrink-0">
+                            <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                        <div class="ml-3">
+                            <h3 class="text-sm leading-5 font-medium text-red-800">
+                                There were a few errors
+                            </h3>
+                            <div class="mt-2 text-sm leading-5 text-red-700">
+                                <ul id="error-list" class="list-disc pl-5">
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    </div>
+
                     <div class="mt-6">
                         <button id="submit-btn" type="submit" disabled class="disabled group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm leading-5 font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-500 focus:outline-none focus:border-indigo-700 focus:shadow-outline-indigo active:bg-indigo-700 transition duration-150 ease-in-out">
                         <span class="absolute left-0 inset-y-0 flex items-center pl-3">
@@ -89,22 +109,47 @@ const Login = {
 
         const form = document.querySelector("#signin-form");
         const submit = document.querySelector("#submit-btn")
+        const errorContainer = document.querySelector("#error-container");
+        const errorList = document.querySelector("#error-list");
+        const closeErrorBtn = document.querySelector("#close-error-btn");
         
-        // validates the form on every user input
-        form.addEventListener("input", (e) => {
-            validateForm();
-        })
-        
-        form.addEventListener("submit", (e) => {
-            e.preventDefault();
-            const data = validateForm();
-            if (data.valid) {
-                // signin user
-                signInUser(data);
-            } else {
-                console.debug("you should not have reached here: invalid data..")
-            }
-        })
+        const enableSubmitBtn = () => {
+            submit.removeAttribute("disabled");
+            submit.classList.remove("disabled");
+        }
+
+        const disableSubmitBtn = () => {
+            submit.setAttribute("disabled", "true");
+            submit.classList.add("disabled");
+        }
+
+        const showErrorContainer = () => {
+            errorContainer.style.display = "";
+        }
+
+        const addError = (err) => {
+            const errorLi = document.createElement("li");
+            errorLi.innerText = err;
+            errorList.append(errorLi);
+        }
+
+
+        const showLoader = () => {
+            pageLoader.style.display = "";
+            pageLogin.style.display = "none";
+        }
+
+        const hideLoader = () => {
+            pageLoader.style.display = "none";
+            pageLogin.style.display = "";
+        }
+
+        const hideErrorContainer = () => {
+            errorContainer.style.display = "none";
+        }
+        const clearErrorList = () => {
+            errorList.innerHTML = "";
+        }
 
         const validateForm = () => {
             const email = form["email"].value.trim();
@@ -132,10 +177,8 @@ const Login = {
         }
         
         const signInUser = ({email, password}) => {
-            // show loader
-            pageLogin.style.display = "none";
-            pageLoader.style.display = "";
-
+            showLoader();
+            clearErrorList();
             // firebase is only used for auth and nothing else
             auth.signInWithEmailAndPassword(email, password).then(({user}) => {
                 user.getIdToken().then((idToken) => {
@@ -148,7 +191,16 @@ const Login = {
                         localStorage.setItem("user@os", JSON.stringify(response.data));
                         navigateToDashboard();
                         console.debug("hahah");
+                    }).catch((err) => {
+                        hideLoader();
+                        showErrorContainer();
+                        addError(err.message);
                     })
+                }).catch((err) => {
+                    hideLoader();
+                    console.debug("ID Token could not be fetched", err);
+                    showErrorContainer();
+                    addError(err.message)
                 })
                 console.debug("user signed in")
                 // TODO:    
@@ -158,20 +210,34 @@ const Login = {
                 // name?
                 // photoUrl?
             }).catch((err) => {
-                // TODO: handle wrong password show a notification sort of bar or just unhide some component in dom
+                hideLoader();
+                showErrorContainer();
+                addError(err.message);
                 console.debug("Sign In Error", err);
             })
         }
 
-        const enableSubmitBtn = () => {
-            submit.removeAttribute("disabled");
-            submit.classList.remove("disabled");
-        }
+                
+        // validates the form on every user input
+        form.addEventListener("input", (e) => {
+            validateForm();
+        })
+        
+        form.addEventListener("submit", (e) => {
+            e.preventDefault();
+            const data = validateForm();
+            if (data.valid) {
+                // signin user
+                signInUser(data);
+            } else {
+                console.debug("you should not have reached here: invalid data..")
+            }
+        })
 
-        const disableSubmitBtn = () => {
-            submit.setAttribute("disabled", "true");
-            submit.classList.add("disabled");
-        }
+        closeErrorBtn.addEventListener("click", (e) => {
+            e.preventDefault();
+            hideErrorContainer();
+        })
     }
 }
 

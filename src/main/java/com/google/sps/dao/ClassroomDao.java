@@ -44,6 +44,7 @@ public class ClassroomDao implements IClassroomDao {
                 .set(classroom);
 
         log.info("Classroom created: ", future.get().toString());
+        validationResponse.setMessage(id); // hack I need id to add students :P
         return validationResponse;
     }
 
