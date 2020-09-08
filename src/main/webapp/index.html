@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>OneSchool</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="OneSchool Google SPS Project by TEAM 76">
+  <meta name="theme-color" content="#6C63FF" />
+  <link rel="manifest" href="./manifest.json" />
+  <link rel="shortcut icon" href="./favicon.ico" type="image/x-icon" />
+  <link rel="apple-touch-icon" sizes="180x180" href="./appicons/apple-touch-icon.png" />
+  <link rel="android-chrome-icon" sizes="192x192" href="./appicons/android-chrome-192x192.png" />
+  <link rel="android-chrome-icon" sizes="512x512" href="./appicons/android-chrome-512x512.png" />
+  <link rel="icon" type="image/png" href="./appicons/favicon-32x32.png" sizes="32x32" />
+  <link rel="icon" type="image/png" href="./appicons/favicon-16x16.png" sizes="16x16" />
+  <meta name="application-name" content="OneSchool: One solution to Online Schooling" />
+  <link href="./style.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://pagecdn.io/lib/font-awesome/5.10.0-11/css/all.min.css" integrity="sha256-p9TTWD+813MlLaxMXMbTA7wN/ArzGyW/L7c5+KkjOkM=" crossorigin="anonymous">
+  <!-- The core Firebase JS SDK is always required and must be listed first --> 
+  <script src="https://www.gstatic.com/firebasejs/7.17.2/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/7.17.2/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/7.17.2/firebase-analytics.js"></script>
+  <script>
+    // It's really okay to keep the apiKey here and make it public, restrictions done.
+    var firebaseConfig = {
+      apiKey: "AIzaSyABPbgVZiV8Qjpv3J-RbBBnrausY6SMp_w",
+      authDomain: "summer20-sps-76.firebaseapp.com",
+      databaseURL: "https://summer20-sps-76.firebaseio.com",
+      projectId: "summer20-sps-76",
+      appId: "1:790765978274:web:7fd95d9e4db048751b0dfb",
+      measurementId: "G-HESPTRDKQX"
+    };
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    firebase.analytics();
+    // make auth references
+    const auth = firebase.auth();
+    const localStorage = window.localStorage;
+  </script>
+  <script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.3.5/dist/alpine.min.js" defer></script>
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+</head>
+<body>
+  <div id="page_container">
+    <div class="min-h-screen flex items-center justify-center bg-white py-12 px-4 sm:px-6 lg:px-8">
+        <div class="w-12 h-12 border-4 border-purple-600 rounded-full loader"></div>
+    </div>
+  </div>
+  <div id="footer_container"></div>
+  <script type="module" src="./app.js"></script>
+</body>
+
+</html>

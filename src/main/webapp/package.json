@@ -1,0 +1,13 @@
+{
+  "dependencies": {
+    "@tailwindcss/ui": "^0.5.0",
+    "tailwindcss": "^1.7.3"
+  },
+  "scripts": {
+    "build:css": "tailwind build css/style.css -o style.css"
+  },
+  "name": "webapp",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT"
+}
